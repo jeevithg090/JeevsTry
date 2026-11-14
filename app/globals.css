@@ -15,10 +15,10 @@
     --secondary: 210 40% 96%;
     --secondary-foreground: 222.2 84% 4.9%;
     --muted: 210 40% 96%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted-foreground: 215.4 19% 39%;
     --accent: 210 40% 96%;
     --accent-foreground: 222.2 84% 4.9%;
-    --destructive: 0 84.2% 60.2%;
+    --destructive: 0 72.2% 50.6%;
     --destructive-foreground: 210 40% 98%;
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
@@ -55,5 +55,26 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+/* Font-size preference applied to <html> by SettingsProvider. */
+@layer base {
+  :root {
+    --font-size-small: 0.875rem;
+    --font-size-default: 1rem;
+    --font-size-large: 1.125rem;
+  }
+
+  html.text-small {
+    font-size: var(--font-size-small);
+  }
+
+  html.text-default {
+    font-size: var(--font-size-default);
+  }
+
+  html.text-large {
+    font-size: var(--font-size-large);
   }
 }
