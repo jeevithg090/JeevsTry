@@ -1,5 +1,6 @@
 "use client"
 
+import { useParams } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -37,7 +38,8 @@ import Link from "next/link"
 import { useState } from "react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 
-export default function GroupManagementPage({ params }: { params: { id: string } }) {
+export default function GroupManagementPage() {
+  const params = useParams<{ id: string }>()
   const [searchTerm, setSearchTerm] = useState("")
   const [groupSettings, setGroupSettings] = useState({
     name: "Frontend Developers",
@@ -208,7 +210,7 @@ export default function GroupManagementPage({ params }: { params: { id: string }
     }
   }
 
-  const handleSettingChange = (key: string, value: any) => {
+  const handleSettingChange = (key: keyof typeof groupSettings, value: string | boolean | number) => {
     setGroupSettings((prev) => ({ ...prev, [key]: value }))
   }
 
@@ -517,7 +519,7 @@ export default function GroupManagementPage({ params }: { params: { id: string }
                     id="slowModeDelay"
                     type="number"
                     value={groupSettings.slowModeDelay}
-                    onChange={(e) => handleSettingChange("slowModeDelay", Number.parseInt(e.target.value))}
+                    onChange={(e) => handleSettingChange("slowModeDelay", Number.parseInt(e.target.value, 10) || 0)}
                     min="1"
                     max="300"
                   />

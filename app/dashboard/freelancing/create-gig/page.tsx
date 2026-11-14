@@ -1,5 +1,6 @@
 "use client"
 
+import { toast } from "@/hooks/use-toast"
 import type React from "react"
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -19,7 +20,7 @@ import { useUser } from "@/lib/user-context"
 
 export default function CreateGigPage() {
   const router = useRouter()
-  const { user, isClient, isStartup } = useUser()
+  const { isClient, isStartup } = useUser()
 
   const [skills, setSkills] = useState<string[]>([])
   const [newSkill, setNewSkill] = useState("")
@@ -63,11 +64,9 @@ export default function CreateGigPage() {
     e.preventDefault()
     setIsLoading(true)
 
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false)
-      router.push("/dashboard/freelancing?tab=my-gigs")
-    }, 2000)
+    // Demo mode: no persistence API yet, so confirm locally and navigate.
+    toast({ title: "Project posted", description: "Freelancers can now send you proposals." })
+    router.push("/dashboard/freelancing?tab=my-projects")
   }
 
   return (

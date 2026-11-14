@@ -1,5 +1,6 @@
 "use client"
 
+import { toast } from "@/hooks/use-toast"
 import type React from "react"
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -82,11 +83,9 @@ export default function CreateEventPage() {
     e.preventDefault()
     setIsLoading(true)
 
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false)
-      router.push("/dashboard/events?tab=hosting")
-    }, 2000)
+    // Demo mode: no persistence API yet, so confirm locally and navigate.
+    toast({ title: "Event created", description: "Your event is now listed under Hosting." })
+    router.push("/dashboard/events?tab=hosting")
   }
 
   return (

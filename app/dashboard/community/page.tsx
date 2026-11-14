@@ -57,7 +57,6 @@ function CommunityContent() {
     setTyping,
     startDirectMessage,
     createGroup,
-    joinGroup,
     leaveGroup,
   } = useChatContext()
 
@@ -70,7 +69,7 @@ function CommunityContent() {
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedTab, setSelectedTab] = useState("groups")
   const messagesEndRef = useRef<HTMLDivElement>(null)
-  const typingTimeoutRef = useRef<NodeJS.Timeout>()
+  const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })

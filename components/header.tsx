@@ -31,24 +31,21 @@ export function Header() {
           <span className="font-bold text-xl">TechCollab</span>
         </Link>
 
-        <nav className="hidden md:flex items-center space-x-8">
-          <Link href="/freelancing" className="text-muted-foreground hover:text-foreground transition-colors">
+        <nav aria-label="Main" className="hidden md:flex items-center space-x-8">
+          <Link href="/dashboard/freelancing" className="text-muted-foreground hover:text-foreground transition-colors">
             Freelancing
           </Link>
-          <Link href="/events" className="text-muted-foreground hover:text-foreground transition-colors">
+          <Link href="/dashboard/events" className="text-muted-foreground hover:text-foreground transition-colors">
             Events
           </Link>
-          <Link href="/community" className="text-muted-foreground hover:text-foreground transition-colors">
+          <Link href="/dashboard/community" className="text-muted-foreground hover:text-foreground transition-colors">
             Community
-          </Link>
-          <Link href="/pricing" className="text-muted-foreground hover:text-foreground transition-colors">
-            Pricing
           </Link>
         </nav>
 
         <div className="flex items-center space-x-4">
           {mounted && (
-            <Button variant="ghost" size="icon" onClick={toggleTheme}>
+            <Button variant="ghost" size="icon" onClick={toggleTheme} aria-label="Toggle theme">
               <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
               <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
             </Button>
@@ -56,14 +53,22 @@ export function Header() {
 
           <div className="hidden md:flex items-center space-x-2">
             <Button variant="ghost" asChild>
-              <Link href="/login">Sign In</Link>
+              <Link href="/auth/signin">Sign In</Link>
             </Button>
             <Button asChild>
               <Link href="/auth">Get Started</Link>
             </Button>
           </div>
 
-          <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="md:hidden"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+            aria-expanded={isMenuOpen}
+            aria-controls="mobile-menu"
+          >
             <Menu className="h-5 w-5" />
           </Button>
         </div>
@@ -71,23 +76,20 @@ export function Header() {
 
       {/* Mobile Menu */}
       {isMenuOpen && (
-        <div className="md:hidden border-t bg-white dark:bg-gray-900 p-4">
+        <div id="mobile-menu" className="md:hidden border-t bg-white dark:bg-gray-900 p-4">
           <nav className="flex flex-col space-y-4">
-            <Link href="/freelancing" className="text-muted-foreground hover:text-foreground">
+            <Link href="/dashboard/freelancing" className="text-muted-foreground hover:text-foreground">
               Freelancing
             </Link>
-            <Link href="/events" className="text-muted-foreground hover:text-foreground">
+            <Link href="/dashboard/events" className="text-muted-foreground hover:text-foreground">
               Events
             </Link>
-            <Link href="/community" className="text-muted-foreground hover:text-foreground">
+            <Link href="/dashboard/community" className="text-muted-foreground hover:text-foreground">
               Community
-            </Link>
-            <Link href="/pricing" className="text-muted-foreground hover:text-foreground">
-              Pricing
             </Link>
             <div className="flex flex-col space-y-2 pt-4 border-t">
               <Button variant="ghost" asChild>
-                <Link href="/login">Sign In</Link>
+                <Link href="/auth/signin">Sign In</Link>
               </Button>
               <Button asChild>
                 <Link href="/auth">Get Started</Link>

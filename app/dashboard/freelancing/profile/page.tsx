@@ -364,6 +364,7 @@ export default function FreelancerProfilePage() {
                 {portfolio.map((project) => (
                   <Card key={project.id} className="overflow-hidden">
                     <div className="aspect-video bg-muted">
+                      {/* eslint-disable-next-line @next/next/no-img-element -- local placeholder SVGs are not optimised by next/image */}
                       <img
                         src={project.image || "/placeholder.svg"}
                         alt={project.title}
