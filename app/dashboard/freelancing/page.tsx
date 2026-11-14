@@ -9,7 +9,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Progress } from "@/components/ui/progress"
 import {
   Search,
-  Filter,
   Plus,
   MapPin,
   Clock,
@@ -23,6 +22,7 @@ import {
   MoreHorizontal,
   Edit,
   Pause,
+  X,
 } from "lucide-react"
 import Link from "next/link"
 import { useState } from "react"
@@ -30,6 +30,8 @@ import { useUser } from "@/lib/user-context"
 import { formatBudget, type BudgetType } from "@/lib/format"
 import { useSearchParams } from "next/navigation"
 import { pickAllowed } from "@/lib/utils"
+import { BUDGET_FILTERS, filterGigs, type BudgetFilter } from "@/lib/filters"
+import { EmptyState } from "@/components/empty-state"
 
 const CLIENT_TABS = ["my-projects", "active-contracts", "proposals", "analytics"] as const
 const FREELANCER_TABS = ["browse-gigs", "my-proposals", "saved-gigs", "my-stats"] as const
@@ -122,15 +124,22 @@ export default function FreelancingPage() {
   const requestedTab = useSearchParams().get("tab")
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("all")
-  const [selectedBudget, setSelectedBudget] = useState("all")
+  const [selectedBudget, setSelectedBudget] = useState<BudgetFilter>("all")
+  const filteredGigs = filterGigs(mockGigs, { query: searchTerm, category: selectedCategory, budget: selectedBudget })
+  const hasActiveFilters = searchTerm.trim() !== "" || selectedCategory !== "all" || selectedBudget !== "all"
+  const clearFilters = () => {
+    setSearchTerm("")
+    setSelectedCategory("all")
+    setSelectedBudget("all")
+  }
 
   // Client/Startup View
   if (isClient || isStartup) {
     return (
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold">Project Management</h1>
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div className="min-w-0">
+            <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Project Management</h1>
             <p className="text-muted-foreground">
               {isStartup
                 ? "Manage your startup's projects and find talent"
@@ -146,7 +155,7 @@ export default function FreelancingPage() {
         </div>
 
         <Tabs defaultValue={pickAllowed(requestedTab, CLIENT_TABS, "my-projects")} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="w-full lg:grid lg:grid-cols-4">
             <TabsTrigger value="my-projects">My Projects</TabsTrigger>
             <TabsTrigger value="active-contracts">Active Contracts</TabsTrigger>
             <TabsTrigger value="proposals">Proposals Received</TabsTrigger>
@@ -167,14 +176,14 @@ export default function FreelancingPage() {
                         <CardDescription className="text-base">{gig.description}</CardDescription>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Button variant="ghost" size="icon">
-                          <Edit className="h-4 w-4" />
+                        <Button variant="ghost" size="icon" aria-label="Edit">
+                          <Edit className="h-4 w-4" aria-hidden="true" />
                         </Button>
-                        <Button variant="ghost" size="icon">
-                          <Pause className="h-4 w-4" />
+                        <Button variant="ghost" size="icon" aria-label="Pause project">
+                          <Pause className="h-4 w-4" aria-hidden="true" />
                         </Button>
-                        <Button variant="ghost" size="icon">
-                          <MoreHorizontal className="h-4 w-4" />
+                        <Button variant="ghost" size="icon" aria-label="More options">
+                          <MoreHorizontal className="h-4 w-4" aria-hidden="true" />
                         </Button>
                       </div>
                     </div>
@@ -207,11 +216,11 @@ export default function FreelancingPage() {
                       ))}
                     </div>
 
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
                       <span className="text-sm text-muted-foreground">
                         Posted on {new Date(gig.postedAt).toLocaleDateString()}
                       </span>
-                      <div className="flex gap-2">
+                      <div className="flex flex-wrap gap-2">
                         <Button variant="outline" size="sm">
                           View Proposals ({gig.proposals})
                         </Button>
@@ -302,9 +311,9 @@ export default function FreelancingPage() {
   // Freelancer View
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Find Work</h1>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0">
+          <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Find Work</h1>
           <p className="text-muted-foreground">Discover projects that match your skills and interests</p>
         </div>
         <Button asChild variant="outline" className="gap-2">
@@ -316,7 +325,7 @@ export default function FreelancingPage() {
       </div>
 
       <Tabs defaultValue={pickAllowed(requestedTab, FREELANCER_TABS, "browse-gigs")} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="w-full lg:grid lg:grid-cols-4">
           <TabsTrigger value="browse-gigs">Browse Projects</TabsTrigger>
           <TabsTrigger value="my-proposals">My Proposals</TabsTrigger>
           <TabsTrigger value="saved-gigs">Saved Projects</TabsTrigger>
@@ -327,11 +336,13 @@ export default function FreelancingPage() {
           {/* Search and Filters */}
           <Card>
             <CardContent className="pt-6">
-              <div className="flex flex-col md:flex-row gap-4">
+              <div className="flex flex-col gap-4 lg:flex-row lg:flex-wrap">
                 <div className="flex-1">
                   <div className="relative">
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input
+                      type="search"
+                      aria-label="Search projects"
                       placeholder="Search projects by title, skills, or keywords..."
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
@@ -340,7 +351,7 @@ export default function FreelancingPage() {
                   </div>
                 </div>
                 <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                  <SelectTrigger className="w-full md:w-48">
+                  <SelectTrigger className="w-full lg:w-48" aria-label="Category">
                     <SelectValue placeholder="Category" />
                   </SelectTrigger>
                   <SelectContent>
@@ -351,29 +362,50 @@ export default function FreelancingPage() {
                     <SelectItem value="ui-ux-design">UI/UX Design</SelectItem>
                   </SelectContent>
                 </Select>
-                <Select value={selectedBudget} onValueChange={setSelectedBudget}>
-                  <SelectTrigger className="w-full md:w-48">
+                <Select
+                  value={selectedBudget}
+                  onValueChange={(value) => setSelectedBudget(pickAllowed(value, BUDGET_FILTERS, "all"))}
+                >
+                  <SelectTrigger className="w-full lg:w-48" aria-label="Budget">
                     <SelectValue placeholder="Budget Range" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All Budgets</SelectItem>
+                    <SelectItem value="hourly">Hourly rate</SelectItem>
                     <SelectItem value="under-1k">Under $1,000</SelectItem>
                     <SelectItem value="1k-5k">$1,000 - $5,000</SelectItem>
                     <SelectItem value="5k-10k">$5,000 - $10,000</SelectItem>
                     <SelectItem value="over-10k">Over $10,000</SelectItem>
                   </SelectContent>
                 </Select>
-                <Button variant="outline" className="gap-2">
-                  <Filter className="h-4 w-4" />
-                  More Filters
-                </Button>
+                {hasActiveFilters && (
+                  <Button variant="ghost" className="gap-2" onClick={clearFilters}>
+                    <X className="h-4 w-4" aria-hidden="true" />
+                    Clear filters
+                  </Button>
+                )}
               </div>
             </CardContent>
           </Card>
 
           {/* Gig Listings */}
+          <p className="text-sm text-muted-foreground" aria-live="polite">
+            {filteredGigs.length} {filteredGigs.length === 1 ? "project" : "projects"} found
+          </p>
           <div className="grid gap-6">
-            {mockGigs.map((gig) => (
+            {filteredGigs.length === 0 && (
+              <EmptyState
+                icon={Search}
+                title="No projects match your filters"
+                description="Try a different keyword or widen the category and budget."
+                action={
+                  <Button variant="outline" onClick={clearFilters}>
+                    Clear filters
+                  </Button>
+                }
+              />
+            )}
+            {filteredGigs.map((gig) => (
               <Card key={gig.id} className="hover:shadow-md transition-shadow">
                 <CardHeader>
                   <div className="flex items-start justify-between">
@@ -412,13 +444,13 @@ export default function FreelancingPage() {
                     ))}
                   </div>
 
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
                       <span>Posted by {gig.postedBy}</span>
                       <span>{gig.proposals} proposals</span>
                       <span>Posted {new Date(gig.postedAt).toLocaleDateString()}</span>
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex flex-wrap gap-2">
                       <Button variant="outline" size="sm">
                         Save
                       </Button>
@@ -472,7 +504,7 @@ export default function FreelancingPage() {
                     </div>
                   </div>
                   <p className="text-sm text-muted-foreground mb-4">{proposal.coverLetter.substring(0, 150)}...</p>
-                  <div className="flex gap-2">
+                  <div className="flex flex-wrap gap-2">
                     <Button variant="outline" size="sm">
                       View Details
                     </Button>
@@ -546,7 +578,7 @@ export default function FreelancingPage() {
                   <span>Profile completion</span>
                   <span>75%</span>
                 </div>
-                <Progress value={75} />
+                <Progress aria-label="Profile completion" value={75} />
               </div>
               <div className="space-y-2 text-sm">
                 <div className="flex items-center gap-2">
