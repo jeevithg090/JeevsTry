@@ -1,51 +1,71 @@
 "use client"
 
-import { createContext, useContext, useEffect, useState } from "react"
+import type { ReactNode } from "react"
+import { createContext, useContext, useEffect, useMemo, useState } from "react"
+import { pickAllowed } from "@/lib/utils"
+
+export const SIDEBAR_POSITIONS = ["left", "right"] as const
+export type SidebarPosition = (typeof SIDEBAR_POSITIONS)[number]
+
+export const FONT_SIZES = ["small", "default", "large"] as const
+export type FontSize = (typeof FONT_SIZES)[number]
+
+const SIDEBAR_KEY = "sidebarPosition"
+const FONT_SIZE_KEY = "fontSize"
 
 type SettingsContextType = {
-  sidebarPosition: "left" | "right"
-  setSidebarPosition: (position: "left" | "right") => void
-  fontSize: "small" | "default" | "large"
-  setFontSize: (size: "small" | "default" | "large") => void
+  sidebarPosition: SidebarPosition
+  setSidebarPosition: (position: SidebarPosition) => void
+  fontSize: FontSize
+  setFontSize: (size: FontSize) => void
 }
 
 const SettingsContext = createContext<SettingsContextType | undefined>(undefined)
 
-export function SettingsProvider({ children }: { children: React.ReactNode }) {
-  const [sidebarPosition, setSidebarPosition] = useState<"left" | "right">(() => {
-    if (typeof window !== "undefined") {
-      return (localStorage.getItem("sidebarPosition") as "left" | "right") || "left"
-    }
-    return "left"
-  })
+function readSetting(key: string): string | null {
+  try {
+    return window.localStorage.getItem(key)
+  } catch {
+    return null
+  }
+}
 
-  const [fontSize, setFontSize] = useState<"small" | "default" | "large">(() => {
-    if (typeof window !== "undefined") {
-      return (localStorage.getItem("fontSize") as "small" | "default" | "large") || "default"
-    }
-    return "default"
-  })
+function writeSetting(key: string, value: string) {
+  try {
+    window.localStorage.setItem(key, value)
+  } catch {
+    // Ignore storage failures; settings still apply for this session.
+  }
+}
+
+export function SettingsProvider({ children }: { children: ReactNode }) {
+  // Start from defaults on both server and client to avoid hydration
+  // mismatches, then load persisted preferences after mount.
+  const [sidebarPosition, setSidebarPosition] = useState<SidebarPosition>("left")
+  const [fontSize, setFontSize] = useState<FontSize>("default")
+  const [hydrated, setHydrated] = useState(false)
 
   useEffect(() => {
-    localStorage.setItem("sidebarPosition", sidebarPosition)
-    // Update root element with font size class
-    const root = document.documentElement
-    root.classList.remove("text-small", "text-default", "text-large")
-    root.classList.add(`text-${fontSize}`)
-  }, [sidebarPosition, fontSize])
+    setSidebarPosition(pickAllowed(readSetting(SIDEBAR_KEY), SIDEBAR_POSITIONS, "left"))
+    setFontSize(pickAllowed(readSetting(FONT_SIZE_KEY), FONT_SIZES, "default"))
+    setHydrated(true)
+  }, [])
 
-  return (
-    <SettingsContext.Provider
-      value={{
-        sidebarPosition,
-        setSidebarPosition,
-        fontSize,
-        setFontSize,
-      }}
-    >
-      {children}
-    </SettingsContext.Provider>
+  useEffect(() => {
+    if (!hydrated) return
+    writeSetting(SIDEBAR_KEY, sidebarPosition)
+    writeSetting(FONT_SIZE_KEY, fontSize)
+    const root = document.documentElement
+    root.classList.remove(...FONT_SIZES.map((size) => `text-${size}`))
+    root.classList.add(`text-${fontSize}`)
+  }, [hydrated, sidebarPosition, fontSize])
+
+  const value = useMemo(
+    () => ({ sidebarPosition, setSidebarPosition, fontSize, setFontSize }),
+    [sidebarPosition, fontSize],
   )
+
+  return <SettingsContext.Provider value={value}>{children}</SettingsContext.Provider>
 }
 
 export function useSettings() {

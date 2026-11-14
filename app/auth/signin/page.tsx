@@ -6,40 +6,54 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Separator } from "@/components/ui/separator"
-import { Eye, EyeOff, Mail, Lock, ArrowLeft, Github, Chrome } from "lucide-react"
+import { Eye, EyeOff, Mail, Lock, ArrowLeft } from "lucide-react"
 import Link from "next/link"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import { FieldError } from "@/components/field-error"
+import {
+  createDemoUser,
+  hasErrors,
+  nameFromEmail,
+  parseStoredUser,
+  safeRedirectPath,
+  USER_STORAGE_KEY,
+  validateSignIn,
+  type SignInErrors,
+} from "@/lib/auth"
+import { useUser } from "@/lib/user-context"
 
 export default function SignInPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
-  const [rememberMe, setRememberMe] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [errors, setErrors] = useState<SignInErrors>({})
   const router = useRouter()
+  const { setUser } = useUser()
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    setIsLoading(true)
+    const validation = validateSignIn({ email, password })
+    setErrors(validation)
+    if (hasErrors(validation)) return
 
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false)
-      // Redirect to dashboard on successful login
-      router.push("/dashboard")
-    }, 2000)
-  }
-
-  const handleSocialLogin = (provider: string) => {
     setIsLoading(true)
-    // Simulate social login
-    setTimeout(() => {
-      setIsLoading(false)
-      router.push("/dashboard")
-    }, 1500)
+    // Demo auth: reuse the profile created at sign-up for this email if there is
+    // one, otherwise start a new freelancer profile.
+    let existing = null
+    try {
+      existing = parseStoredUser(window.localStorage.getItem(USER_STORAGE_KEY))
+    } catch {
+      existing = null
+    }
+    const normalizedEmail = email.trim().toLowerCase()
+    setUser(
+      existing && existing.email === normalizedEmail
+        ? existing
+        : createDemoUser({ name: nameFromEmail(email), email, role: "freelancer" }),
+    )
+    router.push(safeRedirectPath(new URLSearchParams(window.location.search).get("next")))
   }
 
   return (
@@ -69,53 +83,26 @@ export default function SignInPage() {
           <CardDescription className="text-center">Enter your credentials to access your account</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          {/* Social Login */}
-          <div className="space-y-3">
-            <Button
-              variant="outline"
-              className="w-full"
-              onClick={() => handleSocialLogin("google")}
-              disabled={isLoading}
-            >
-              <Chrome className="h-4 w-4 mr-2" />
-              Continue with Google
-            </Button>
-            <Button
-              variant="outline"
-              className="w-full"
-              onClick={() => handleSocialLogin("github")}
-              disabled={isLoading}
-            >
-              <Github className="h-4 w-4 mr-2" />
-              Continue with GitHub
-            </Button>
-          </div>
-
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <Separator className="w-full" />
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-background px-2 text-muted-foreground">Or continue with email</span>
-            </div>
-          </div>
-
           {/* Email/Password Form */}
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} noValidate className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   id="email"
+                  aria-invalid={Boolean(errors.email)}
+                  aria-describedby={errors.email ? "email-error" : undefined}
                   type="email"
                   placeholder="john@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  autoComplete="email"
                   className="pl-10"
                   required
                 />
               </div>
+              <FieldError id="email-error" message={errors.email} />
             </div>
 
             <div className="space-y-2">
@@ -124,10 +111,13 @@ export default function SignInPage() {
                 <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   id="password"
+                  aria-invalid={Boolean(errors.password)}
+                  aria-describedby={errors.password ? "password-error" : undefined}
                   type={showPassword ? "text" : "password"}
                   placeholder="Enter your password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  autoComplete="current-password"
                   className="pl-10 pr-10"
                   required
                 />
@@ -137,6 +127,7 @@ export default function SignInPage() {
                   size="icon"
                   className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
                   onClick={() => setShowPassword(!showPassword)}
+                  aria-label={showPassword ? "Hide password" : "Show password"}
                 >
                   {showPassword ? (
                     <EyeOff className="h-4 w-4 text-muted-foreground" />
@@ -145,23 +136,12 @@ export default function SignInPage() {
                   )}
                 </Button>
               </div>
+              <FieldError id="password-error" message={errors.password} />
             </div>
 
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="remember"
-                  checked={rememberMe}
-                  onCheckedChange={(checked) => setRememberMe(checked as boolean)}
-                />
-                <Label htmlFor="remember" className="text-sm">
-                  Remember me
-                </Label>
-              </div>
-              <Link href="/auth/forgot-password" className="text-sm text-blue-600 hover:underline">
-                Forgot password?
-              </Link>
-            </div>
+            <p className="text-xs text-muted-foreground">
+              Demo mode: accounts are stored only in this browser and any password is accepted.
+            </p>
 
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? "Signing in..." : "Sign in"}

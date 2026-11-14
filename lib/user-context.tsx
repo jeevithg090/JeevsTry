@@ -1,23 +1,15 @@
 "use client"
 
-import type React from "react"
-import { createContext, useContext, useState, useEffect } from "react"
+import type { ReactNode } from "react"
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react"
+import { parseStoredUser, USER_STORAGE_KEY, type User } from "@/lib/auth"
 
-export type UserRole = "freelancer" | "client" | "startup"
-
-export interface User {
-  id: string
-  name: string
-  email: string
-  role: UserRole
-  avatar?: string
-  company?: string
-  verified: boolean
-  joinedAt: string
-}
+export type { User, UserRole } from "@/lib/auth"
 
 interface UserContextType {
   user: User | null
+  /** True until the persisted session has been read from storage. */
+  isLoading: boolean
   setUser: (user: User | null) => void
   isClient: boolean
   isFreelancer: boolean
@@ -27,49 +19,57 @@ interface UserContextType {
 
 const UserContext = createContext<UserContextType | undefined>(undefined)
 
-export function UserProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null)
+function readStoredUser(): User | null {
+  try {
+    return parseStoredUser(window.localStorage.getItem(USER_STORAGE_KEY))
+  } catch {
+    // Storage can be unavailable (private mode, blocked cookies).
+    return null
+  }
+}
 
-  // Mock user data - in real app, this would come from authentication
-  useEffect(() => {
-    // Check if user data exists in localStorage
-    const savedUser = localStorage.getItem("techcollab_user")
-    if (savedUser) {
-      setUser(JSON.parse(savedUser))
+function writeStoredUser(user: User | null) {
+  try {
+    if (user) {
+      window.localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(user))
     } else {
-      // Default to null - user needs to sign up/sign in
-      setUser(null)
+      window.localStorage.removeItem(USER_STORAGE_KEY)
     }
+  } catch {
+    // Ignore storage failures; the in-memory session still works.
+  }
+}
+
+export function UserProvider({ children }: { children: ReactNode }) {
+  const [user, setUserState] = useState<User | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    setUserState(readStoredUser())
+    setIsLoading(false)
   }, [])
 
-  const isClient = user?.role === "client"
-  const isFreelancer = user?.role === "freelancer"
-  const isStartup = user?.role === "startup"
+  const setUser = useCallback((next: User | null) => {
+    setUserState(next)
+    writeStoredUser(next)
+  }, [])
 
-  const saveUser = (userData: User) => {
-    setUser(userData)
-    localStorage.setItem("techcollab_user", JSON.stringify(userData))
-  }
+  const logout = useCallback(() => setUser(null), [setUser])
 
-  const logout = () => {
-    setUser(null)
-    localStorage.removeItem("techcollab_user")
-  }
-
-  return (
-    <UserContext.Provider
-      value={{
-        user,
-        setUser: saveUser,
-        isClient,
-        isFreelancer,
-        isStartup,
-        logout,
-      }}
-    >
-      {children}
-    </UserContext.Provider>
+  const value = useMemo<UserContextType>(
+    () => ({
+      user,
+      isLoading,
+      setUser,
+      isClient: user?.role === "client",
+      isFreelancer: user?.role === "freelancer",
+      isStartup: user?.role === "startup",
+      logout,
+    }),
+    [user, isLoading, setUser, logout],
   )
+
+  return <UserContext.Provider value={value}>{children}</UserContext.Provider>
 }
 
 export function useUser() {

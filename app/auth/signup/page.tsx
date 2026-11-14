@@ -9,13 +9,18 @@ import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge"
 import { Checkbox } from "@/components/ui/checkbox"
-import { ArrowLeft, Github, Mail, Eye, EyeOff, Briefcase, Building, Users } from "lucide-react"
+import { ArrowLeft, Eye, EyeOff, Briefcase, Building, Users, Check } from "lucide-react"
 import Link from "next/link"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import { FieldError } from "@/components/field-error"
+import { createDemoUser, hasErrors, isUserRole, validateSignUp, type SignUpErrors } from "@/lib/auth"
+import { useUser } from "@/lib/user-context"
 
 export default function SignUpPage() {
   const router = useRouter()
+  const { setUser } = useUser()
+  const [errors, setErrors] = useState<SignUpErrors>({})
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [selectedRole, setSelectedRole] = useState<string>("")
@@ -31,28 +36,32 @@ export default function SignUpPage() {
     subscribeNewsletter: false,
   })
 
-  const handleInputChange = (field: string, value: string | boolean) => {
+  const handleInputChange = (field: keyof typeof formData, value: string | boolean) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
+    setErrors((prev) => ({ ...prev, [field]: undefined }))
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const needsCompany = selectedRole === "client" || selectedRole === "startup"
+
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    if (formData.password !== formData.confirmPassword) {
-      alert("Passwords don't match!")
-      return
+    const validation = validateSignUp(formData)
+    if (needsCompany && !formData.company.trim()) {
+      validation.company = selectedRole === "startup" ? "Startup name is required." : "Company name is required."
     }
-    if (!formData.agreeToTerms) {
-      alert("Please agree to the terms and conditions")
-      return
-    }
+    setErrors(validation)
+    if (hasErrors(validation) || !isUserRole(formData.role)) return
 
     setIsLoading(true)
-
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false)
-      router.push("/dashboard")
-    }, 2000)
+    setUser(
+      createDemoUser({
+        name: `${formData.firstName} ${formData.lastName}`,
+        email: formData.email,
+        role: formData.role,
+        company: needsCompany ? formData.company : undefined,
+      }),
+    )
+    router.push("/dashboard")
   }
 
   const roleOptions = [
@@ -83,7 +92,7 @@ export default function SignUpPage() {
     <div className="w-full max-w-2xl mx-auto">
       <div className="flex items-center space-x-4 mb-8">
         <Button variant="ghost" size="icon" asChild>
-          <Link href="/auth">
+          <Link href="/auth" aria-label="Back to account options">
             <ArrowLeft className="h-4 w-4" />
           </Link>
         </Button>
@@ -99,7 +108,7 @@ export default function SignUpPage() {
           <CardDescription>Create your account to access all platform features</CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} noValidate className="space-y-6">
             {/* Role Selection - First Step */}
             <div className="space-y-4">
               <div className="text-center">
@@ -109,9 +118,11 @@ export default function SignUpPage() {
 
               <div className="grid gap-3">
                 {roleOptions.map((role) => (
-                  <div
+                  <button
+                    type="button"
                     key={role.value}
-                    className={`relative cursor-pointer rounded-lg border-2 p-4 transition-all hover:shadow-md ${
+                    aria-pressed={selectedRole === role.value}
+                    className={`relative w-full text-left cursor-pointer rounded-lg border-2 p-4 transition-all hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
                       selectedRole === role.value
                         ? "border-blue-500 bg-blue-50 dark:bg-blue-950 shadow-md"
                         : "border-gray-200 hover:border-gray-300"
@@ -140,13 +151,7 @@ export default function SignUpPage() {
                           <h3 className="font-semibold text-lg">{role.label}</h3>
                           {selectedRole === role.value && (
                             <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
-                              <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                <path
-                                  fillRule="evenodd"
-                                  d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                  clipRule="evenodd"
-                                />
-                              </svg>
+                              <Check className="w-4 h-4 text-white" aria-hidden="true" />
                             </div>
                           )}
                         </div>
@@ -198,9 +203,10 @@ export default function SignUpPage() {
                         </div>
                       </div>
                     </div>
-                  </div>
+                  </button>
                 ))}
               </div>
+              <FieldError id="role-error" message={errors.role} />
 
               {!selectedRole && (
                 <div className="text-center">
@@ -218,26 +224,32 @@ export default function SignUpPage() {
                 <div className="space-y-4">
                   <h3 className="text-lg font-semibold">Personal Information</h3>
 
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="firstName">First Name *</Label>
                       <Input
                         id="firstName"
+                        aria-invalid={Boolean(errors.firstName)}
+                        aria-describedby={errors.firstName ? "firstName-error" : undefined}
                         placeholder="John"
                         value={formData.firstName}
                         onChange={(e) => handleInputChange("firstName", e.target.value)}
                         required
                       />
+                      <FieldError id="firstName-error" message={errors.firstName} />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="lastName">Last Name *</Label>
                       <Input
                         id="lastName"
+                        aria-invalid={Boolean(errors.lastName)}
+                        aria-describedby={errors.lastName ? "lastName-error" : undefined}
                         placeholder="Doe"
                         value={formData.lastName}
                         onChange={(e) => handleInputChange("lastName", e.target.value)}
                         required
                       />
+                      <FieldError id="lastName-error" message={errors.lastName} />
                     </div>
                   </div>
 
@@ -245,12 +257,15 @@ export default function SignUpPage() {
                     <Label htmlFor="email">Email Address *</Label>
                     <Input
                       id="email"
+                      aria-invalid={Boolean(errors.email)}
+                      aria-describedby={errors.email ? "email-error" : undefined}
                       type="email"
                       placeholder="john@example.com"
                       value={formData.email}
                       onChange={(e) => handleInputChange("email", e.target.value)}
                       required
                     />
+                    <FieldError id="email-error" message={errors.email} />
                   </div>
 
                   {/* Company field for clients and startups */}
@@ -259,20 +274,24 @@ export default function SignUpPage() {
                       <Label htmlFor="company">{selectedRole === "startup" ? "Startup Name" : "Company Name"} *</Label>
                       <Input
                         id="company"
+                        aria-invalid={Boolean(errors.company)}
+                        aria-describedby={errors.company ? "company-error" : undefined}
                         placeholder={selectedRole === "startup" ? "Your Startup" : "Your Company"}
                         value={formData.company}
                         onChange={(e) => handleInputChange("company", e.target.value)}
-                        required
                       />
+                      <FieldError id="company-error" message={errors.company} />
                     </div>
                   )}
 
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="password">Password *</Label>
                       <div className="relative">
                         <Input
                           id="password"
+                          aria-invalid={Boolean(errors.password)}
+                          aria-describedby={errors.password ? "password-error" : undefined}
                           type={showPassword ? "text" : "password"}
                           placeholder="Create a strong password"
                           value={formData.password}
@@ -285,6 +304,7 @@ export default function SignUpPage() {
                           size="icon"
                           className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
                           onClick={() => setShowPassword(!showPassword)}
+                          aria-label={showPassword ? "Hide password" : "Show password"}
                         >
                           {showPassword ? (
                             <EyeOff className="h-4 w-4 text-muted-foreground" />
@@ -293,17 +313,21 @@ export default function SignUpPage() {
                           )}
                         </Button>
                       </div>
+                      <FieldError id="password-error" message={errors.password} />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="confirmPassword">Confirm Password *</Label>
                       <Input
                         id="confirmPassword"
+                        aria-invalid={Boolean(errors.confirmPassword)}
+                        aria-describedby={errors.confirmPassword ? "confirmPassword-error" : undefined}
                         type="password"
                         placeholder="Confirm your password"
                         value={formData.confirmPassword}
                         onChange={(e) => handleInputChange("confirmPassword", e.target.value)}
                         required
                       />
+                      <FieldError id="confirmPassword-error" message={errors.confirmPassword} />
                     </div>
                   </div>
                 </div>
@@ -319,17 +343,10 @@ export default function SignUpPage() {
                       onCheckedChange={(checked) => handleInputChange("agreeToTerms", checked as boolean)}
                     />
                     <Label htmlFor="terms" className="text-sm">
-                      I agree to the{" "}
-                      <Link href="/terms" className="text-blue-600 hover:underline">
-                        Terms of Service
-                      </Link>{" "}
-                      and{" "}
-                      <Link href="/privacy" className="text-blue-600 hover:underline">
-                        Privacy Policy
-                      </Link>{" "}
-                      *
+                      I agree to the Terms of Service and Privacy Policy *
                     </Label>
                   </div>
+                  <FieldError id="terms-error" message={errors.agreeToTerms} />
 
                   <div className="flex items-center space-x-2">
                     <Checkbox
@@ -348,26 +365,6 @@ export default function SignUpPage() {
                     ? "Creating Account..."
                     : `Create ${selectedRole === "freelancer" ? "Freelancer" : selectedRole === "startup" ? "Startup" : "Client"} Account`}
                 </Button>
-
-                <div className="relative">
-                  <div className="absolute inset-0 flex items-center">
-                    <span className="w-full border-t" />
-                  </div>
-                  <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <Button variant="outline" type="button">
-                    <Github className="mr-2 h-4 w-4" />
-                    GitHub
-                  </Button>
-                  <Button variant="outline" type="button">
-                    <Mail className="mr-2 h-4 w-4" />
-                    Google
-                  </Button>
-                </div>
 
                 <div className="text-center text-sm">
                   Already have an account?{" "}

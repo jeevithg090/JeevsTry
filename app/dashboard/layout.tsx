@@ -1,33 +1,15 @@
-"use client"
+import type { Metadata } from "next"
+import type { ReactNode } from "react"
+import { DashboardShell } from "@/components/dashboard-shell"
 
-import type React from "react"
-import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar"
-import { AppSidebar } from "@/components/app-sidebar"
-import { DashboardHeader } from "@/components/dashboard-header"
-import { UserProvider } from "@/lib/user-context"
-import { ChatProvider } from "@/lib/chat-context"
-import { useSettings } from "@/lib/settings-context"
+export const metadata: Metadata = {
+  title: {
+    default: "Dashboard",
+    template: "%s · TechCollab",
+  },
+  robots: { index: false, follow: false },
+}
 
-export default function DashboardLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
-  const { fontSize } = useSettings()
-
-  return (
-    <UserProvider>
-      <ChatProvider>
-        <div className={`text-${fontSize}`}>
-          <SidebarProvider>
-            <AppSidebar />
-            <SidebarInset>
-              <DashboardHeader />
-              <main className="flex-1 p-6">{children}</main>
-            </SidebarInset>
-          </SidebarProvider>
-        </div>
-      </ChatProvider>
-    </UserProvider>
-  )
+export default function DashboardLayout({ children }: { children: ReactNode }) {
+  return <DashboardShell>{children}</DashboardShell>
 }
