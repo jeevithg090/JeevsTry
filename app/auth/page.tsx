@@ -36,15 +36,15 @@ export default function AuthPage() {
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="space-y-4">
-              <div className="flex items-center space-x-3 text-sm text-muted-foreground">
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
                 <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                 <span>Access your dashboard instantly</span>
               </div>
-              <div className="flex items-center space-x-3 text-sm text-muted-foreground">
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
                 <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
                 <span>Continue active projects</span>
               </div>
-              <div className="flex items-center space-x-3 text-sm text-muted-foreground">
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
                 <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
                 <span>Rejoin your communities</span>
               </div>
@@ -75,16 +75,16 @@ export default function AuthPage() {
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="space-y-4">
-              <div className="flex items-center space-x-3 text-sm text-muted-foreground">
-                <Briefcase className="w-4 h-4 text-blue-600" />
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
+                <Briefcase className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                 <span>Access to freelancing marketplace</span>
               </div>
-              <div className="flex items-center space-x-3 text-sm text-muted-foreground">
-                <Calendar className="w-4 h-4 text-purple-600" />
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
+                <Calendar className="w-4 h-4 text-purple-600 dark:text-purple-400" />
                 <span>Create and join tech events</span>
               </div>
-              <div className="flex items-center space-x-3 text-sm text-muted-foreground">
-                <MessageCircle className="w-4 h-4 text-green-600" />
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
+                <MessageCircle className="w-4 h-4 text-green-700 dark:text-green-400" />
                 <span>Join vibrant communities</span>
               </div>
             </div>
@@ -108,24 +108,24 @@ export default function AuthPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="flex flex-col items-center space-y-3">
             <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
-              <Zap className="h-6 w-6 text-blue-600" />
+              <Zap className="h-6 w-6 text-blue-600 dark:text-blue-400" />
             </div>
-            <h3 className="font-semibold">Lightning Fast</h3>
-            <p className="text-sm text-muted-foreground">Real-time collaboration tools</p>
+            <h3 className="font-semibold">One workspace</h3>
+            <p className="text-sm text-muted-foreground">Gigs, events and chat together</p>
           </div>
           <div className="flex flex-col items-center space-y-3">
             <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center">
-              <Shield className="h-6 w-6 text-purple-600" />
+              <Shield className="h-6 w-6 text-purple-600 dark:text-purple-400" />
             </div>
-            <h3 className="font-semibold">Secure & Trusted</h3>
-            <p className="text-sm text-muted-foreground">Bank-level security</p>
+            <h3 className="font-semibold">Role-aware</h3>
+            <p className="text-sm text-muted-foreground">Tailored to freelancers, clients and startups</p>
           </div>
           <div className="flex flex-col items-center space-y-3">
             <div className="w-12 h-12 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center">
-              <Users className="h-6 w-6 text-green-600" />
+              <Users className="h-6 w-6 text-green-700 dark:text-green-400" />
             </div>
-            <h3 className="font-semibold">Global Community</h3>
-            <p className="text-sm text-muted-foreground">Connect worldwide</p>
+            <h3 className="font-semibold">Community first</h3>
+            <p className="text-sm text-muted-foreground">Groups and direct messages built in</p>
           </div>
         </div>
       </div>

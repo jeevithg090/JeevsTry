@@ -92,12 +92,12 @@ export default function CreateEventPage() {
     <div className="space-y-6">
       <div className="flex items-center space-x-4">
         <Button variant="ghost" size="icon" asChild>
-          <Link href="/dashboard/events">
+          <Link href="/dashboard/events" aria-label="Back">
             <ArrowLeft className="h-4 w-4" />
           </Link>
         </Button>
         <div>
-          <h1 className="text-3xl font-bold">Create New Event</h1>
+          <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Create New Event</h1>
           <p className="text-muted-foreground">Organize your next tech event and build community</p>
         </div>
       </div>
@@ -128,7 +128,7 @@ export default function CreateEventPage() {
                   <div className="space-y-2">
                     <Label htmlFor="eventType">Event Type *</Label>
                     <Select value={formData.eventType} onValueChange={(value) => handleInputChange("eventType", value)}>
-                      <SelectTrigger>
+                      <SelectTrigger id="eventType">
                         <SelectValue placeholder="Select event type" />
                       </SelectTrigger>
                       <SelectContent>
@@ -146,7 +146,7 @@ export default function CreateEventPage() {
                   <div className="space-y-2">
                     <Label htmlFor="category">Category *</Label>
                     <Select value={formData.category} onValueChange={(value) => handleInputChange("category", value)}>
-                      <SelectTrigger>
+                      <SelectTrigger id="category">
                         <SelectValue placeholder="Select category" />
                       </SelectTrigger>
                       <SelectContent>
@@ -178,15 +178,15 @@ export default function CreateEventPage() {
 
                 <div className="space-y-2">
                   <Label>Event Tags</Label>
-                  <div className="flex gap-2">
+                  <div className="flex flex-wrap gap-2">
                     <Input
                       placeholder="Add a tag (e.g., React, AI, Startup)"
                       value={newTag}
                       onChange={(e) => setNewTag(e.target.value)}
                       onKeyPress={(e) => e.key === "Enter" && (e.preventDefault(), addTag())}
                     />
-                    <Button type="button" onClick={addTag} size="icon">
-                      <Plus className="h-4 w-4" />
+                    <Button type="button" onClick={addTag} size="icon" aria-label="Add tag">
+                      <Plus className="h-4 w-4" aria-hidden="true" />
                     </Button>
                   </div>
                   {tags.length > 0 && (
@@ -267,7 +267,7 @@ export default function CreateEventPage() {
                 <div className="space-y-2">
                   <Label htmlFor="timezone">Timezone</Label>
                   <Select value={formData.timezone} onValueChange={(value) => handleInputChange("timezone", value)}>
-                    <SelectTrigger>
+                    <SelectTrigger id="timezone">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -421,7 +421,7 @@ export default function CreateEventPage() {
                               value={formData.currency}
                               onValueChange={(value) => handleInputChange("currency", value)}
                             >
-                              <SelectTrigger>
+                              <SelectTrigger id="currency">
                                 <SelectValue />
                               </SelectTrigger>
                               <SelectContent>
@@ -458,15 +458,15 @@ export default function CreateEventPage() {
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <Label>Speakers & Presenters</Label>
-                  <div className="flex gap-2">
+                  <div className="flex flex-wrap gap-2">
                     <Input
                       placeholder="Add speaker name"
                       value={newSpeaker}
                       onChange={(e) => setNewSpeaker(e.target.value)}
                       onKeyPress={(e) => e.key === "Enter" && (e.preventDefault(), addSpeaker())}
                     />
-                    <Button type="button" onClick={addSpeaker} size="icon">
-                      <Plus className="h-4 w-4" />
+                    <Button type="button" onClick={addSpeaker} size="icon" aria-label="Add speaker">
+                      <Plus className="h-4 w-4" aria-hidden="true" />
                     </Button>
                   </div>
                   {speakers.length > 0 && (
@@ -584,7 +584,7 @@ export default function CreateEventPage() {
                 <Separator />
 
                 <div className="space-y-3">
-                  <div className="flex items-center gap-2 text-sm">
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
                     <Calendar className="h-4 w-4 text-muted-foreground" />
                     <span>
                       {formData.startDate && formData.startTime
@@ -592,7 +592,7 @@ export default function CreateEventPage() {
                         : "Date & time not set"}
                     </span>
                   </div>
-                  <div className="flex items-center gap-2 text-sm">
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
                     {formData.isOnline ? (
                       <Video className="h-4 w-4 text-muted-foreground" />
                     ) : (
@@ -601,7 +601,7 @@ export default function CreateEventPage() {
                     <span>{formData.isOnline ? "Online Event" : formData.venue || "Venue not set"}</span>
                   </div>
                   {formData.maxAttendees && (
-                    <div className="flex items-center gap-2 text-sm">
+                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
                       <Users className="h-4 w-4 text-muted-foreground" />
                       <span>Max {formData.maxAttendees} attendees</span>
                     </div>

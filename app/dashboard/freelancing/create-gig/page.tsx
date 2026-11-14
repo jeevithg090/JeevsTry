@@ -73,12 +73,14 @@ export default function CreateGigPage() {
     <div className="space-y-6">
       <div className="flex items-center space-x-4">
         <Button variant="ghost" size="icon" asChild>
-          <Link href="/dashboard/freelancing">
+          <Link href="/dashboard/freelancing" aria-label="Back">
             <ArrowLeft className="h-4 w-4" />
           </Link>
         </Button>
         <div>
-          <h1 className="text-3xl font-bold">{isStartup ? "Post Startup Project" : "Create New Project"}</h1>
+          <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
+            {isStartup ? "Post Startup Project" : "Create New Project"}
+          </h1>
           <p className="text-muted-foreground">
             {isStartup ? "Find talented developers for your startup" : "Post a project and find the perfect freelancer"}
           </p>
@@ -110,7 +112,7 @@ export default function CreateGigPage() {
                 <div className="space-y-2">
                   <Label htmlFor="category">Category *</Label>
                   <Select value={formData.category} onValueChange={(value) => handleInputChange("category", value)}>
-                    <SelectTrigger>
+                    <SelectTrigger id="category">
                       <SelectValue placeholder="Select project category" />
                     </SelectTrigger>
                     <SelectContent>
@@ -140,15 +142,15 @@ export default function CreateGigPage() {
 
                 <div className="space-y-2">
                   <Label>Required Skills</Label>
-                  <div className="flex gap-2">
+                  <div className="flex flex-wrap gap-2">
                     <Input
                       placeholder="Add a skill (e.g., React, Node.js)"
                       value={newSkill}
                       onChange={(e) => setNewSkill(e.target.value)}
                       onKeyPress={(e) => e.key === "Enter" && (e.preventDefault(), addSkill())}
                     />
-                    <Button type="button" onClick={addSkill} size="icon">
-                      <Plus className="h-4 w-4" />
+                    <Button type="button" onClick={addSkill} size="icon" aria-label="Add skill">
+                      <Plus className="h-4 w-4" aria-hidden="true" />
                     </Button>
                   </div>
                   {skills.length > 0 && (
@@ -182,12 +184,12 @@ export default function CreateGigPage() {
               <CardContent className="space-y-4">
                 <div className="grid md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label>Budget Type</Label>
+                    <Label htmlFor="budget-type">Budget Type</Label>
                     <Select
                       value={formData.budgetType}
                       onValueChange={(value) => handleInputChange("budgetType", value)}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger id="budget-type">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -218,7 +220,7 @@ export default function CreateGigPage() {
                   <div className="space-y-2">
                     <Label htmlFor="duration">Project Duration *</Label>
                     <Select value={formData.duration} onValueChange={(value) => handleInputChange("duration", value)}>
-                      <SelectTrigger>
+                      <SelectTrigger id="duration">
                         <SelectValue placeholder="Select duration" />
                       </SelectTrigger>
                       <SelectContent>
@@ -237,7 +239,7 @@ export default function CreateGigPage() {
                       value={formData.experienceLevel}
                       onValueChange={(value) => handleInputChange("experienceLevel", value)}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger id="experienceLevel">
                         <SelectValue placeholder="Select level" />
                       </SelectTrigger>
                       <SelectContent>
@@ -328,22 +330,22 @@ export default function CreateGigPage() {
                 <Separator />
 
                 <div className="space-y-3">
-                  <div className="flex items-center gap-2 text-sm">
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
                     <DollarSign className="h-4 w-4 text-muted-foreground" />
                     <span>
                       {formData.budget ? `$${formData.budget}` : "$0"}{" "}
                       {formData.budgetType === "hourly" ? "/hour" : "fixed"}
                     </span>
                   </div>
-                  <div className="flex items-center gap-2 text-sm">
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
                     <Calendar className="h-4 w-4 text-muted-foreground" />
                     <span>{formData.duration || "Duration not set"}</span>
                   </div>
-                  <div className="flex items-center gap-2 text-sm">
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
                     <MapPin className="h-4 w-4 text-muted-foreground" />
                     <span>{formData.isRemote ? "Remote" : formData.location || "Location not set"}</span>
                   </div>
-                  <div className="flex items-center gap-2 text-sm">
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
                     <Users className="h-4 w-4 text-muted-foreground" />
                     <span>{formData.experienceLevel || "Experience level not set"}</span>
                   </div>

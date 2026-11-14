@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
@@ -218,15 +218,15 @@ export default function GroupManagementPage() {
     <div className="space-y-6">
       <div className="flex items-center space-x-4">
         <Button variant="ghost" size="icon" asChild>
-          <Link href="/dashboard/community">
+          <Link href="/dashboard/community" aria-label="Back">
             <ArrowLeft className="h-4 w-4" />
           </Link>
         </Button>
         <div className="flex-1">
-          <h1 className="text-3xl font-bold">{group.name}</h1>
+          <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">{group.name}</h1>
           <p className="text-muted-foreground">Group Management & Settings</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <Button variant="outline" className="gap-2">
             <Share className="h-4 w-4" />
             Share Group
@@ -248,7 +248,7 @@ export default function GroupManagementPage() {
           <CardContent>
             <div className="text-2xl font-bold">{group.memberCount}</div>
             <p className="text-xs text-muted-foreground">
-              <span className="text-green-600">+23</span> this week
+              <span className="text-green-700 dark:text-green-400">+23</span> this week
             </p>
           </CardContent>
         </Card>
@@ -274,7 +274,7 @@ export default function GroupManagementPage() {
           <CardContent>
             <div className="text-2xl font-bold">342</div>
             <p className="text-xs text-muted-foreground">
-              <span className="text-purple-600">+15%</span> from yesterday
+              <span className="text-purple-600 dark:text-purple-400">+15%</span> from yesterday
             </p>
           </CardContent>
         </Card>
@@ -294,7 +294,7 @@ export default function GroupManagementPage() {
       </div>
 
       <Tabs defaultValue="members" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="w-full lg:grid lg:grid-cols-5">
           <TabsTrigger value="members">Members</TabsTrigger>
           <TabsTrigger value="settings">Settings</TabsTrigger>
           <TabsTrigger value="moderation">Moderation</TabsTrigger>
@@ -306,9 +306,9 @@ export default function GroupManagementPage() {
           {/* Member Management */}
           <Card>
             <CardHeader>
-              <div className="flex items-center justify-between">
+              <div className="flex flex-wrap items-center justify-between gap-2">
                 <CardTitle>Member Management</CardTitle>
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2">
                   <Button variant="outline" size="sm" className="gap-2">
                     <Download className="h-4 w-4" />
                     Export List
@@ -343,7 +343,6 @@ export default function GroupManagementPage() {
                     <div className="flex items-center space-x-4">
                       <div className="relative">
                         <Avatar className="h-12 w-12">
-                          <AvatarImage src="/placeholder.svg?height=48&width=48" />
                           <AvatarFallback>{member.avatar}</AvatarFallback>
                         </Avatar>
                         <div
@@ -355,7 +354,7 @@ export default function GroupManagementPage() {
                           <p className="font-medium">{member.name}</p>
                           {getRoleBadge(member.role)}
                         </div>
-                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
                           <span>Joined {member.joinedAt.toLocaleDateString()}</span>
                           <span>{member.messageCount} messages</span>
                           <span>Last active {member.lastActive.toLocaleDateString()}</span>
@@ -364,8 +363,8 @@ export default function GroupManagementPage() {
                     </div>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon">
-                          <MoreVertical className="h-4 w-4" />
+                        <Button variant="ghost" size="icon" aria-label="More options">
+                          <MoreVertical className="h-4 w-4" aria-hidden="true" />
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
@@ -385,7 +384,7 @@ export default function GroupManagementPage() {
                           <BellOff className="h-4 w-4 mr-2" />
                           Mute Member
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="text-red-600">
+                        <DropdownMenuItem className="text-red-600 dark:text-red-400">
                           <UserMinus className="h-4 w-4 mr-2" />
                           Remove Member
                         </DropdownMenuItem>
@@ -425,7 +424,7 @@ export default function GroupManagementPage() {
               </div>
               <div className="space-y-2">
                 <Label>Privacy Setting</Label>
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2">
                   <Button
                     variant={groupSettings.type === "public" ? "default" : "outline"}
                     onClick={() => handleSettingChange("type", "public")}
@@ -453,7 +452,7 @@ export default function GroupManagementPage() {
               <CardDescription>Control what members can do in this group</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-wrap items-center justify-between gap-2">
                 <div>
                   <p className="font-medium">Allow member invites</p>
                   <p className="text-sm text-muted-foreground">Let members invite others to the group</p>
@@ -463,7 +462,7 @@ export default function GroupManagementPage() {
                   onCheckedChange={(checked) => handleSettingChange("allowMemberInvites", checked)}
                 />
               </div>
-              <div className="flex items-center justify-between">
+              <div className="flex flex-wrap items-center justify-between gap-2">
                 <div>
                   <p className="font-medium">Require approval for new members</p>
                   <p className="text-sm text-muted-foreground">Admins must approve new member requests</p>
@@ -473,7 +472,7 @@ export default function GroupManagementPage() {
                   onCheckedChange={(checked) => handleSettingChange("requireApproval", checked)}
                 />
               </div>
-              <div className="flex items-center justify-between">
+              <div className="flex flex-wrap items-center justify-between gap-2">
                 <div>
                   <p className="font-medium">Allow file uploads</p>
                   <p className="text-sm text-muted-foreground">Members can upload files and images</p>
@@ -483,7 +482,7 @@ export default function GroupManagementPage() {
                   onCheckedChange={(checked) => handleSettingChange("allowFileUploads", checked)}
                 />
               </div>
-              <div className="flex items-center justify-between">
+              <div className="flex flex-wrap items-center justify-between gap-2">
                 <div>
                   <p className="font-medium">Allow external links</p>
                   <p className="text-sm text-muted-foreground">Members can share external links</p>
@@ -502,7 +501,7 @@ export default function GroupManagementPage() {
               <CardDescription>Configure automatic moderation features</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-wrap items-center justify-between gap-2">
                 <div>
                   <p className="font-medium">Slow mode</p>
                   <p className="text-sm text-muted-foreground">Limit how often members can send messages</p>
@@ -525,7 +524,7 @@ export default function GroupManagementPage() {
                   />
                 </div>
               )}
-              <div className="flex items-center justify-between">
+              <div className="flex flex-wrap items-center justify-between gap-2">
                 <div>
                   <p className="font-medium">Allow @everyone mentions</p>
                   <p className="text-sm text-muted-foreground">Members can mention all group members</p>
@@ -543,7 +542,7 @@ export default function GroupManagementPage() {
           {/* Pinned Messages */}
           <Card>
             <CardHeader>
-              <div className="flex items-center justify-between">
+              <div className="flex flex-wrap items-center justify-between gap-2">
                 <CardTitle>Pinned Messages</CardTitle>
                 <Button size="sm" className="gap-2">
                   <Pin className="h-4 w-4" />
@@ -568,8 +567,8 @@ export default function GroupManagementPage() {
                     </div>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon">
-                          <MoreVertical className="h-4 w-4" />
+                        <Button variant="ghost" size="icon" aria-label="More options">
+                          <MoreVertical className="h-4 w-4" aria-hidden="true" />
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
@@ -581,7 +580,7 @@ export default function GroupManagementPage() {
                           <Copy className="h-4 w-4 mr-2" />
                           Copy Link
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="text-red-600">
+                        <DropdownMenuItem className="text-red-600 dark:text-red-400">
                           <Trash className="h-4 w-4 mr-2" />
                           Unpin
                         </DropdownMenuItem>
@@ -657,11 +656,10 @@ export default function GroupManagementPage() {
               <CardContent>
                 <div className="space-y-4">
                   {members.slice(0, 5).map((member, index) => (
-                    <div key={member.id} className="flex items-center justify-between">
+                    <div key={member.id} className="flex flex-wrap items-center justify-between gap-2">
                       <div className="flex items-center gap-3">
                         <span className="text-sm font-medium w-4">#{index + 1}</span>
                         <Avatar className="h-8 w-8">
-                          <AvatarImage src="/placeholder.svg?height=32&width=32" />
                           <AvatarFallback className="text-xs">{member.avatar}</AvatarFallback>
                         </Avatar>
                         <span className="text-sm font-medium">{member.name}</span>

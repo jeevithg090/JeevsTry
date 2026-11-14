@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Calendar, MapPin, Clock, Users, Star, Share, ArrowLeft, CreditCard, Shield, CheckCircle } from "lucide-react"
 import Link from "next/link"
 import { useState } from "react"
@@ -147,7 +147,7 @@ export default function EventRegistrationPage() {
               </Link>
             </Button>
             <div>
-              <h1 className="text-3xl font-bold">Event Registration</h1>
+              <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Event Registration</h1>
               <p className="text-muted-foreground">Secure your spot at this amazing event</p>
             </div>
           </div>
@@ -245,7 +245,7 @@ export default function EventRegistrationPage() {
                           }`}
                           onClick={() => handleInputChange("ticketType", ticket.id)}
                         >
-                          <div className="flex items-center justify-between">
+                          <div className="flex flex-wrap items-center justify-between gap-2">
                             <div className="flex items-center space-x-3">
                               <input
                                 type="radio"
@@ -253,7 +253,8 @@ export default function EventRegistrationPage() {
                                 value={ticket.id}
                                 checked={formData.ticketType === ticket.id}
                                 onChange={() => handleInputChange("ticketType", ticket.id)}
-                                className="rounded-full"
+                                aria-label={`${ticket.name} ticket`}
+                                className="h-4 w-4 accent-primary"
                               />
                               <div>
                                 <p className="font-medium">{ticket.name}</p>
@@ -284,7 +285,7 @@ export default function EventRegistrationPage() {
                         value={formData.experience}
                         onValueChange={(value) => handleInputChange("experience", value)}
                       >
-                        <SelectTrigger>
+                        <SelectTrigger id="experience">
                           <SelectValue placeholder="Select your experience level" />
                         </SelectTrigger>
                         <SelectContent>
@@ -376,26 +377,26 @@ export default function EventRegistrationPage() {
                   <Separator />
 
                   <div className="space-y-3">
-                    <div className="flex items-center gap-2 text-sm">
+                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
                       <Calendar className="h-4 w-4 text-muted-foreground" />
                       <span>
                         {event.startDate} - {event.endDate}
                       </span>
                     </div>
-                    <div className="flex items-center gap-2 text-sm">
+                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
                       <Clock className="h-4 w-4 text-muted-foreground" />
                       <span>
                         {event.startTime} - {event.endTime} {event.timezone}
                       </span>
                     </div>
-                    <div className="flex items-center gap-2 text-sm">
+                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
                       <MapPin className="h-4 w-4 text-muted-foreground" />
                       <div>
                         <p>{event.venue}</p>
                         <p className="text-muted-foreground">{event.address}</p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2 text-sm">
+                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
                       <Users className="h-4 w-4 text-muted-foreground" />
                       <span>
                         {event.registeredCount} registered • {event.maxAttendees - event.registeredCount} spots left
@@ -425,7 +426,6 @@ export default function EventRegistrationPage() {
                 <CardContent>
                   <div className="flex items-center space-x-3">
                     <Avatar>
-                      <AvatarImage src="/placeholder.svg?height=40&width=40" />
                       <AvatarFallback>{event.organizer.avatar}</AvatarFallback>
                     </Avatar>
                     <div>
@@ -446,16 +446,16 @@ export default function EventRegistrationPage() {
                   <CardTitle className="text-lg">Security & Trust</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  <div className="flex items-center gap-2 text-sm">
-                    <Shield className="h-4 w-4 text-green-600" />
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
+                    <Shield className="h-4 w-4 text-green-700 dark:text-green-400" />
                     <span>Secure payment processing</span>
                   </div>
-                  <div className="flex items-center gap-2 text-sm">
-                    <CheckCircle className="h-4 w-4 text-green-600" />
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
+                    <CheckCircle className="h-4 w-4 text-green-700 dark:text-green-400" />
                     <span>Verified event organizer</span>
                   </div>
-                  <div className="flex items-center gap-2 text-sm">
-                    <CreditCard className="h-4 w-4 text-green-600" />
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
+                    <CreditCard className="h-4 w-4 text-green-700 dark:text-green-400" />
                     <span>Full refund if event is cancelled</span>
                   </div>
                 </CardContent>

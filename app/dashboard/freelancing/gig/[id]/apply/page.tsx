@@ -11,7 +11,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { ArrowLeft, DollarSign, Calendar, Clock, Star, Paperclip, Send } from "lucide-react"
 import Link from "next/link"
 import { useState } from "react"
@@ -67,12 +67,12 @@ export default function ApplyToGigPage() {
     <div className="space-y-6">
       <div className="flex items-center space-x-4">
         <Button variant="ghost" size="icon" asChild>
-          <Link href="/dashboard/freelancing">
+          <Link href="/dashboard/freelancing" aria-label="Back">
             <ArrowLeft className="h-4 w-4" />
           </Link>
         </Button>
         <div>
-          <h1 className="text-3xl font-bold">Submit Proposal</h1>
+          <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Submit Proposal</h1>
           <p className="text-muted-foreground">Apply for this gig with your best proposal</p>
         </div>
       </div>
@@ -123,7 +123,7 @@ export default function ApplyToGigPage() {
                       value={proposal.estimatedDuration}
                       onValueChange={(value) => handleInputChange("estimatedDuration", value)}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger id="estimatedDuration">
                         <SelectValue placeholder="Select duration" />
                       </SelectTrigger>
                       <SelectContent>
@@ -209,15 +209,15 @@ export default function ApplyToGigPage() {
               <Separator />
 
               <div className="space-y-3">
-                <div className="flex items-center gap-2 text-sm">
+                <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
                   <DollarSign className="h-4 w-4 text-muted-foreground" />
                   <span className="font-medium">{gig.budget}</span>
                 </div>
-                <div className="flex items-center gap-2 text-sm">
+                <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
                   <Calendar className="h-4 w-4 text-muted-foreground" />
                   <span>{gig.duration}</span>
                 </div>
-                <div className="flex items-center gap-2 text-sm">
+                <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
                   <Clock className="h-4 w-4 text-muted-foreground" />
                   <span>{gig.proposals} proposals submitted</span>
                 </div>
@@ -245,7 +245,6 @@ export default function ApplyToGigPage() {
             <CardContent className="space-y-4">
               <div className="flex items-center space-x-3">
                 <Avatar>
-                  <AvatarImage src="/placeholder.svg?height=40&width=40" />
                   <AvatarFallback>{gig.client.avatar}</AvatarFallback>
                 </Avatar>
                 <div>

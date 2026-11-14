@@ -99,11 +99,9 @@ export function AppSidebar() {
               {mainNavItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild isActive={isNavItemActive(pathname, item.url)}>
-                    <Link href={item.url} className="flex items-center justify-between">
-                      <div className="flex items-center">
-                        <item.icon className="h-4 w-4" />
-                        <span>{item.title}</span>
-                      </div>
+                    <Link href={item.url}>
+                      <item.icon className="h-4 w-4" aria-hidden="true" />
+                      <span>{item.title}</span>
                       {item.badge && (
                         <Badge variant="secondary" className="ml-auto">
                           {item.badge}
@@ -125,7 +123,7 @@ export function AppSidebar() {
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild isActive={pathname === item.url}>
                     <Link href={item.url}>
-                      <item.icon className="h-4 w-4" />
+                      <item.icon className="h-4 w-4" aria-hidden="true" />
                       <span>{item.title}</span>
                     </Link>
                   </SidebarMenuButton>

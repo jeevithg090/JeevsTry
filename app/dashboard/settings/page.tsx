@@ -32,7 +32,7 @@ import { Badge } from "@/components/ui/badge"
 import { useTheme } from "next-themes"
 import { useSearchParams } from "next/navigation"
 import { pickAllowed } from "@/lib/utils"
-import { isValidEmail } from "@/lib/auth"
+import { getInitials, isValidEmail } from "@/lib/auth"
 import { toast } from "@/hooks/use-toast"
 
 const SETTINGS_TABS = ["profile", "account", "notifications", "billing", "appearance"] as const
@@ -101,12 +101,12 @@ export default function SettingsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
+        <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Settings</h1>
         <p className="text-muted-foreground">Manage your account settings and preferences</p>
       </div>
 
       <Tabs defaultValue={initialTab}>
-        <TabsList className="grid w-full grid-cols-5 lg:w-auto">
+        <TabsList className="w-full lg:grid lg:grid-cols-5">
           <TabsTrigger value="profile" className="flex items-center gap-2">
             <User className="h-4 w-4" />
             <span className="hidden sm:inline">Profile</span>
@@ -140,20 +140,15 @@ export default function SettingsPage() {
                 <div className="flex flex-col md:flex-row gap-6">
                   <div className="flex flex-col items-center space-y-4">
                     <Avatar className="h-28 w-28">
-                      <AvatarImage src={user?.avatar || "/placeholder-user.jpg"} alt="Profile picture" />
-                      <AvatarFallback>
-                        {user?.name
-                          ?.split(" ")
-                          .map((n) => n[0])
-                          .join("") || "U"}
-                      </AvatarFallback>
+                      {user?.avatar && <AvatarImage src={user.avatar} alt="Profile picture" />}
+                      <AvatarFallback className="text-2xl">{getInitials(user?.name ?? "")}</AvatarFallback>
                     </Avatar>
-                    <div className="flex gap-2">
-                      <Button type="button" size="sm" variant="outline" className="flex gap-2">
+                    <div className="flex flex-wrap gap-2">
+                      <Button type="button" size="sm" variant="outline" className="flex flex-wrap gap-2">
                         <Camera className="h-4 w-4" />
                         <span>Change</span>
                       </Button>
-                      <Button type="button" size="sm" variant="outline" className="flex gap-2">
+                      <Button type="button" size="sm" variant="outline" className="flex flex-wrap gap-2">
                         <UploadCloud className="h-4 w-4" />
                         <span>Upload</span>
                       </Button>
@@ -228,32 +223,38 @@ export default function SettingsPage() {
               <CardDescription>Control what information is visible on your public profile</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="space-y-0.5">
-                  <Label className="text-base">Profile Visibility</Label>
+                  <Label htmlFor="profile-visibility" className="text-base">
+                    Profile Visibility
+                  </Label>
                   <p className="text-sm text-muted-foreground">
                     Make your profile visible to potential collaborators and employers
                   </p>
                 </div>
-                <Switch defaultChecked />
+                <Switch id="profile-visibility" defaultChecked />
               </div>
               <Separator />
-              <div className="flex items-center justify-between">
+              <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="space-y-0.5">
-                  <Label className="text-base">Show Email Address</Label>
+                  <Label htmlFor="show-email-address" className="text-base">
+                    Show Email Address
+                  </Label>
                   <p className="text-sm text-muted-foreground">Allow others to see and contact you via email</p>
                 </div>
-                <Switch />
+                <Switch id="show-email-address" />
               </div>
               <Separator />
-              <div className="flex items-center justify-between">
+              <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="space-y-0.5">
-                  <Label className="text-base">Show Projects</Label>
+                  <Label htmlFor="show-projects" className="text-base">
+                    Show Projects
+                  </Label>
                   <p className="text-sm text-muted-foreground">
                     Display your projects and contributions on your profile
                   </p>
                 </div>
-                <Switch defaultChecked />
+                <Switch id="show-projects" defaultChecked />
               </div>
             </CardContent>
           </Card>
@@ -290,14 +291,16 @@ export default function SettingsPage() {
               <CardDescription>Add an extra layer of security to your account</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="space-y-0.5">
-                  <Label className="text-base">Two-Factor Authentication</Label>
+                  <Label htmlFor="two-factor-authentication" className="text-base">
+                    Two-Factor Authentication
+                  </Label>
                   <p className="text-sm text-muted-foreground">
                     Protect your account with an additional security layer
                   </p>
                 </div>
-                <Switch />
+                <Switch id="two-factor-authentication" />
               </div>
               <Separator />
               <div className="space-y-4">
@@ -335,7 +338,7 @@ export default function SettingsPage() {
               <CardDescription>Manage accounts connected to your profile</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="flex items-center space-x-4">
                   <div className="p-2 rounded-full bg-[#2563EB]/10">
                     <svg className="h-5 w-5 text-[#2563EB]" fill="currentColor" viewBox="0 0 24 24">
@@ -352,7 +355,7 @@ export default function SettingsPage() {
                 </Button>
               </div>
               <Separator />
-              <div className="flex items-center justify-between">
+              <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="flex items-center space-x-4">
                   <div className="p-2 rounded-full bg-[#0077B5]/10">
                     <svg className="h-5 w-5 text-[#0077B5]" fill="currentColor" viewBox="0 0 24 24">
@@ -379,7 +382,7 @@ export default function SettingsPage() {
               <CardDescription>These actions are irreversible and can lead to permanent data loss</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="space-y-0.5">
                   <Label className="text-base">Deactivate Account</Label>
                   <p className="text-sm text-muted-foreground">
@@ -391,7 +394,7 @@ export default function SettingsPage() {
                 </Button>
               </div>
               <Separator />
-              <div className="flex items-center justify-between">
+              <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="space-y-0.5">
                   <Label className="text-base">Delete Account</Label>
                   <p className="text-sm text-muted-foreground">
@@ -418,10 +421,13 @@ export default function SettingsPage() {
                   <div className="space-y-2 border rounded-md p-4">
                     <div className="flex items-center space-x-2">
                       <Mail className="h-4 w-4" />
-                      <Label className="text-sm font-medium">Email Notifications</Label>
+                      <Label htmlFor="email-notifications" className="text-sm font-medium">
+                        Email Notifications
+                      </Label>
                     </div>
                     <div className="flex items-center space-x-2">
                       <Switch
+                        id="email-notifications"
                         checked={notificationSettings.email}
                         onCheckedChange={() => handleNotificationToggle("email")}
                       />
@@ -433,10 +439,13 @@ export default function SettingsPage() {
                   <div className="space-y-2 border rounded-md p-4">
                     <div className="flex items-center space-x-2">
                       <Bell className="h-4 w-4" />
-                      <Label className="text-sm font-medium">Push Notifications</Label>
+                      <Label htmlFor="push-notifications" className="text-sm font-medium">
+                        Push Notifications
+                      </Label>
                     </div>
                     <div className="flex items-center space-x-2">
                       <Switch
+                        id="push-notifications"
                         checked={notificationSettings.push}
                         onCheckedChange={() => handleNotificationToggle("push")}
                       />
@@ -448,10 +457,13 @@ export default function SettingsPage() {
                   <div className="space-y-2 border rounded-md p-4">
                     <div className="flex items-center space-x-2">
                       <Globe className="h-4 w-4" />
-                      <Label className="text-sm font-medium">Browser Notifications</Label>
+                      <Label htmlFor="browser-notifications" className="text-sm font-medium">
+                        Browser Notifications
+                      </Label>
                     </div>
                     <div className="flex items-center space-x-2">
                       <Switch
+                        id="browser-notifications"
                         checked={notificationSettings.browser}
                         onCheckedChange={() => handleNotificationToggle("browser")}
                       />
@@ -471,75 +483,90 @@ export default function SettingsPage() {
               <CardDescription>Control which types of notifications you receive</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="space-y-0.5">
                   <div className="flex items-center space-x-2">
                     <Calendar className="h-4 w-4" />
-                    <Label className="text-base">Event Reminders</Label>
+                    <Label htmlFor="event-reminders" className="text-base">
+                      Event Reminders
+                    </Label>
                   </div>
                   <p className="text-sm text-muted-foreground">Receive reminders about upcoming events and deadlines</p>
                 </div>
                 <Switch
+                  id="event-reminders"
                   checked={notificationSettings.eventReminders}
                   onCheckedChange={() => handleNotificationToggle("eventReminders")}
                 />
               </div>
               <Separator />
-              <div className="flex items-center justify-between">
+              <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="space-y-0.5">
                   <div className="flex items-center space-x-2">
                     <MessageCircle className="h-4 w-4" />
-                    <Label className="text-base">Messages</Label>
+                    <Label htmlFor="messages" className="text-base">
+                      Messages
+                    </Label>
                   </div>
                   <p className="text-sm text-muted-foreground">Get notified when you receive a new message</p>
                 </div>
                 <Switch
+                  id="messages"
                   checked={notificationSettings.messageNotifications}
                   onCheckedChange={() => handleNotificationToggle("messageNotifications")}
                 />
               </div>
               <Separator />
-              <div className="flex items-center justify-between">
+              <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="space-y-0.5">
                   <div className="flex items-center space-x-2">
                     <Briefcase className="h-4 w-4" />
-                    <Label className="text-base">Project Updates</Label>
+                    <Label htmlFor="project-updates" className="text-base">
+                      Project Updates
+                    </Label>
                   </div>
                   <p className="text-sm text-muted-foreground">Receive updates about projects you're involved in</p>
                 </div>
                 <Switch
+                  id="project-updates"
                   checked={notificationSettings.projectUpdates}
                   onCheckedChange={() => handleNotificationToggle("projectUpdates")}
                 />
               </div>
               <Separator />
-              <div className="flex items-center justify-between">
+              <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="space-y-0.5">
                   <div className="flex items-center space-x-2">
                     <Bell className="h-4 w-4" />
-                    <Label className="text-base">Community Updates</Label>
+                    <Label htmlFor="community-updates" className="text-base">
+                      Community Updates
+                    </Label>
                   </div>
                   <p className="text-sm text-muted-foreground">
                     Stay informed about community events and announcements
                   </p>
                 </div>
                 <Switch
+                  id="community-updates"
                   checked={notificationSettings.communityUpdates}
                   onCheckedChange={() => handleNotificationToggle("communityUpdates")}
                 />
               </div>
               <Separator />
-              <div className="flex items-center justify-between">
+              <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="space-y-0.5">
                   <div className="flex items-center space-x-2">
                     <Mail className="h-4 w-4" />
-                    <Label className="text-base">Marketing Emails</Label>
+                    <Label htmlFor="marketing-emails" className="text-base">
+                      Marketing Emails
+                    </Label>
                   </div>
                   <p className="text-sm text-muted-foreground">
                     Receive promotional offers and updates from our partners
                   </p>
                 </div>
                 <Switch
+                  id="marketing-emails"
                   checked={notificationSettings.marketingEmails}
                   onCheckedChange={() => handleNotificationToggle("marketingEmails")}
                 />
@@ -771,20 +798,24 @@ export default function SettingsPage() {
               <CardDescription>Configure accessibility settings for your account</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="space-y-0.5">
-                  <Label className="text-base">Reduced Motion</Label>
+                  <Label htmlFor="reduced-motion" className="text-base">
+                    Reduced Motion
+                  </Label>
                   <p className="text-sm text-muted-foreground">Minimize animations throughout the interface</p>
                 </div>
-                <Switch />
+                <Switch id="reduced-motion" />
               </div>
               <Separator />
-              <div className="flex items-center justify-between">
+              <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="space-y-0.5">
-                  <Label className="text-base">High Contrast Mode</Label>
+                  <Label htmlFor="high-contrast-mode" className="text-base">
+                    High Contrast Mode
+                  </Label>
                   <p className="text-sm text-muted-foreground">Increase contrast between elements</p>
                 </div>
-                <Switch />
+                <Switch id="high-contrast-mode" />
               </div>
             </CardContent>
           </Card>
