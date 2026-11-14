@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Progress } from "@/components/ui/progress"
 import { Separator } from "@/components/ui/separator"
@@ -33,6 +33,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 
 export default function ManageEventPage() {
   const params = useParams<{ id: string }>()
+  const [activeTab, setActiveTab] = useState("attendees")
   const [selectedAttendees, setSelectedAttendees] = useState<string[]>([])
   const [filterStatus, setFilterStatus] = useState("all")
   const [searchTerm, setSearchTerm] = useState("")
@@ -183,25 +184,23 @@ export default function ManageEventPage() {
     <div className="space-y-6">
       <div className="flex items-center space-x-4">
         <Button variant="ghost" size="icon" asChild>
-          <Link href="/dashboard/events">
+          <Link href="/dashboard/events" aria-label="Back">
             <ArrowLeft className="h-4 w-4" />
           </Link>
         </Button>
         <div className="flex-1">
-          <h1 className="text-3xl font-bold">{event.title}</h1>
+          <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">{event.title}</h1>
           <p className="text-muted-foreground">Event Management Dashboard</p>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" asChild>
-            <Link href={`/dashboard/events/edit/${event.id}`}>
-              <Edit className="h-4 w-4 mr-2" />
-              Edit Event
-            </Link>
+        <div className="flex flex-wrap gap-2">
+          <Button variant="outline" onClick={() => setActiveTab("settings")}>
+            <Edit className="h-4 w-4 mr-2" aria-hidden="true" />
+            Edit Event
           </Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="icon">
-                <MoreVertical className="h-4 w-4" />
+              <Button variant="outline" size="icon" aria-label="More options">
+                <MoreVertical className="h-4 w-4" aria-hidden="true" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
@@ -232,7 +231,11 @@ export default function ManageEventPage() {
           <CardContent>
             <div className="text-2xl font-bold">{event.registeredCount}</div>
             <p className="text-xs text-muted-foreground">of {event.maxAttendees} max capacity</p>
-            <Progress value={(event.registeredCount / event.maxAttendees) * 100} className="mt-2" />
+            <Progress
+              aria-label="Registration capacity"
+              value={(event.registeredCount / event.maxAttendees) * 100}
+              className="mt-2"
+            />
           </CardContent>
         </Card>
 
@@ -270,8 +273,8 @@ export default function ManageEventPage() {
         </Card>
       </div>
 
-      <Tabs defaultValue="attendees" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-5">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+        <TabsList className="w-full lg:grid lg:grid-cols-5">
           <TabsTrigger value="attendees">Attendees</TabsTrigger>
           <TabsTrigger value="analytics">Analytics</TabsTrigger>
           <TabsTrigger value="communications">Communications</TabsTrigger>
@@ -283,9 +286,9 @@ export default function ManageEventPage() {
           {/* Attendee Management Tools */}
           <Card>
             <CardHeader>
-              <div className="flex items-center justify-between">
+              <div className="flex flex-wrap items-center justify-between gap-2">
                 <CardTitle>Attendee Management</CardTitle>
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2">
                   {selectedAttendees.length > 0 && (
                     <>
                       <Button variant="outline" size="sm">
@@ -317,7 +320,7 @@ export default function ManageEventPage() {
                   />
                 </div>
                 <Select value={filterStatus} onValueChange={setFilterStatus}>
-                  <SelectTrigger className="w-full md:w-48">
+                  <SelectTrigger className="w-full md:w-48" aria-label="Filter by status">
                     <SelectValue placeholder="Filter by status" />
                   </SelectTrigger>
                   <SelectContent>
@@ -340,7 +343,8 @@ export default function ManageEventPage() {
                       type="checkbox"
                       checked={selectedAttendees.length === filteredAttendees.length && filteredAttendees.length > 0}
                       onChange={handleSelectAll}
-                      className="rounded"
+                      aria-label="Select all attendees"
+                      className="h-4 w-4 rounded accent-primary"
                     />
                     <span className="font-medium">{filteredAttendees.length} attendees</span>
                   </div>
@@ -354,10 +358,10 @@ export default function ManageEventPage() {
                           type="checkbox"
                           checked={selectedAttendees.includes(attendee.id)}
                           onChange={() => handleSelectAttendee(attendee.id)}
-                          className="rounded"
+                          aria-label={`Select ${attendee.name}`}
+                          className="h-4 w-4 rounded accent-primary"
                         />
                         <Avatar className="h-10 w-10">
-                          <AvatarImage src="/placeholder.svg?height=40&width=40" />
                           <AvatarFallback>
                             {attendee.name
                               .split(" ")
@@ -366,7 +370,7 @@ export default function ManageEventPage() {
                           </AvatarFallback>
                         </Avatar>
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-between">
+                          <div className="flex flex-wrap items-center justify-between gap-2">
                             <div>
                               <p className="font-medium">{attendee.name}</p>
                               <p className="text-sm text-muted-foreground">{attendee.email}</p>
@@ -379,8 +383,8 @@ export default function ManageEventPage() {
                               {getPaymentBadge(attendee.paymentStatus)}
                               <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
-                                  <Button variant="ghost" size="icon">
-                                    <MoreVertical className="h-4 w-4" />
+                                  <Button variant="ghost" size="icon" aria-label="More options">
+                                    <MoreVertical className="h-4 w-4" aria-hidden="true" />
                                   </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end">
@@ -396,7 +400,7 @@ export default function ManageEventPage() {
                                     <Edit className="h-4 w-4 mr-2" />
                                     Edit Details
                                   </DropdownMenuItem>
-                                  <DropdownMenuItem className="text-red-600">
+                                  <DropdownMenuItem className="text-red-600 dark:text-red-400">
                                     <UserX className="h-4 w-4 mr-2" />
                                     Cancel Registration
                                   </DropdownMenuItem>
@@ -404,7 +408,7 @@ export default function ManageEventPage() {
                               </DropdownMenu>
                             </div>
                           </div>
-                          <div className="flex items-center space-x-4 mt-2 text-xs text-muted-foreground">
+                          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2 text-xs text-muted-foreground">
                             <span>Registered: {attendee.registrationDate}</span>
                             <span>Ticket: {attendee.ticketType}</span>
                             <span>Phone: {attendee.phone}</span>
@@ -445,28 +449,28 @@ export default function ManageEventPage() {
                       <span>Software Engineers</span>
                       <span>45%</span>
                     </div>
-                    <Progress value={45} className="h-2" />
+                    <Progress aria-label="Software Engineers" value={45} className="h-2" />
                   </div>
                   <div>
                     <div className="flex justify-between text-sm mb-1">
                       <span>Product Managers</span>
                       <span>25%</span>
                     </div>
-                    <Progress value={25} className="h-2" />
+                    <Progress aria-label="Product Managers" value={25} className="h-2" />
                   </div>
                   <div>
                     <div className="flex justify-between text-sm mb-1">
                       <span>Designers</span>
                       <span>20%</span>
                     </div>
-                    <Progress value={20} className="h-2" />
+                    <Progress aria-label="Designers" value={20} className="h-2" />
                   </div>
                   <div>
                     <div className="flex justify-between text-sm mb-1">
                       <span>Students</span>
                       <span>10%</span>
                     </div>
-                    <Progress value={10} className="h-2" />
+                    <Progress aria-label="Students" value={10} className="h-2" />
                   </div>
                 </div>
               </CardContent>
@@ -533,9 +537,11 @@ export default function ManageEventPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <label className="text-sm font-medium">Recipients</label>
+                <label htmlFor="recipients" className="text-sm font-medium">
+                  Recipients
+                </label>
                 <Select>
-                  <SelectTrigger>
+                  <SelectTrigger id="recipients">
                     <SelectValue placeholder="Select recipients" />
                   </SelectTrigger>
                   <SelectContent>
@@ -601,7 +607,7 @@ export default function ManageEventPage() {
               <div className="grid md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Quick Check-in</label>
-                  <div className="flex gap-2">
+                  <div className="flex flex-wrap gap-2">
                     <Input placeholder="Scan QR code or enter email" />
                     <Button>Check In</Button>
                   </div>
@@ -636,33 +642,53 @@ export default function ManageEventPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-4">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-wrap items-center justify-between gap-2">
                   <div>
                     <p className="font-medium">Registration Open</p>
                     <p className="text-sm text-muted-foreground">Allow new registrations</p>
                   </div>
-                  <input type="checkbox" defaultChecked className="rounded" />
+                  <input
+                    type="checkbox"
+                    defaultChecked
+                    aria-label="Registration Open"
+                    className="h-4 w-4 rounded accent-primary"
+                  />
                 </div>
-                <div className="flex items-center justify-between">
+                <div className="flex flex-wrap items-center justify-between gap-2">
                   <div>
                     <p className="font-medium">Waitlist Enabled</p>
                     <p className="text-sm text-muted-foreground">Allow waitlist when full</p>
                   </div>
-                  <input type="checkbox" defaultChecked className="rounded" />
+                  <input
+                    type="checkbox"
+                    defaultChecked
+                    aria-label="Waitlist Enabled"
+                    className="h-4 w-4 rounded accent-primary"
+                  />
                 </div>
-                <div className="flex items-center justify-between">
+                <div className="flex flex-wrap items-center justify-between gap-2">
                   <div>
                     <p className="font-medium">Auto-confirm from Waitlist</p>
                     <p className="text-sm text-muted-foreground">Automatically confirm when spots open</p>
                   </div>
-                  <input type="checkbox" defaultChecked className="rounded" />
+                  <input
+                    type="checkbox"
+                    defaultChecked
+                    aria-label="Auto-confirm from Waitlist"
+                    className="h-4 w-4 rounded accent-primary"
+                  />
                 </div>
-                <div className="flex items-center justify-between">
+                <div className="flex flex-wrap items-center justify-between gap-2">
                   <div>
                     <p className="font-medium">Send Reminders</p>
                     <p className="text-sm text-muted-foreground">Email reminders before event</p>
                   </div>
-                  <input type="checkbox" defaultChecked className="rounded" />
+                  <input
+                    type="checkbox"
+                    defaultChecked
+                    aria-label="Send Reminders"
+                    className="h-4 w-4 rounded accent-primary"
+                  />
                 </div>
               </div>
 

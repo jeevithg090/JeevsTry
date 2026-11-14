@@ -97,7 +97,7 @@ export default function SignUpPage() {
           </Link>
         </Button>
         <div>
-          <h1 className="text-3xl font-bold">Create Your Account</h1>
+          <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Create Your Account</h1>
           <p className="text-muted-foreground">Join TechCollab and start collaborating</p>
         </div>
       </div>
@@ -147,7 +147,7 @@ export default function SignUpPage() {
                         />
                       </div>
                       <div className="flex-1">
-                        <div className="flex items-center justify-between">
+                        <div className="flex flex-wrap items-center justify-between gap-2">
                           <h3 className="font-semibold text-lg">{role.label}</h3>
                           {selectedRole === role.value && (
                             <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
@@ -368,7 +368,7 @@ export default function SignUpPage() {
 
                 <div className="text-center text-sm">
                   Already have an account?{" "}
-                  <Link href="/auth/signin" className="text-blue-600 hover:underline">
+                  <Link href="/auth/signin" className="text-primary hover:underline">
                     Sign in here
                   </Link>
                 </div>

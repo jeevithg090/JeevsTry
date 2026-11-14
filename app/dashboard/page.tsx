@@ -24,55 +24,55 @@ export default function DashboardPage() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-4">
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardHeader className="flex flex-row items-start justify-between gap-2 space-y-0 p-4 pb-2 sm:p-6 sm:pb-2">
             <CardTitle className="text-sm font-medium">Active Gigs</CardTitle>
-            <Briefcase className="h-4 w-4 text-muted-foreground" />
+            <Briefcase className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden="true" />
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-4 pt-0 sm:p-6 sm:pt-0">
             <div className="text-2xl font-bold">12</div>
             <p className="text-xs text-muted-foreground">
-              <span className="text-green-600">+2</span> from last month
+              <span className="text-green-700 dark:text-green-400">+2</span> from last month
             </p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardHeader className="flex flex-row items-start justify-between gap-2 space-y-0 p-4 pb-2 sm:p-6 sm:pb-2">
             <CardTitle className="text-sm font-medium">Upcoming Events</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
+            <Calendar className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden="true" />
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-4 pt-0 sm:p-6 sm:pt-0">
             <div className="text-2xl font-bold">8</div>
             <p className="text-xs text-muted-foreground">
-              <span className="text-blue-600">3</span> this week
+              <span className="text-blue-600 dark:text-blue-400">3</span> this week
             </p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardHeader className="flex flex-row items-start justify-between gap-2 space-y-0 p-4 pb-2 sm:p-6 sm:pb-2">
             <CardTitle className="text-sm font-medium">Messages</CardTitle>
-            <MessageCircle className="h-4 w-4 text-muted-foreground" />
+            <MessageCircle className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden="true" />
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-4 pt-0 sm:p-6 sm:pt-0">
             <div className="text-2xl font-bold">24</div>
             <p className="text-xs text-muted-foreground">
-              <span className="text-orange-600">5</span> unread
+              <span className="text-orange-700 dark:text-orange-400">5</span> unread
             </p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardHeader className="flex flex-row items-start justify-between gap-2 space-y-0 p-4 pb-2 sm:p-6 sm:pb-2">
             <CardTitle className="text-sm font-medium">This Month Earnings</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
+            <DollarSign className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden="true" />
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-4 pt-0 sm:p-6 sm:pt-0">
             <div className="text-2xl font-bold">$4,250</div>
             <p className="text-xs text-muted-foreground">
-              <span className="text-green-600">+12%</span> from last month
+              <span className="text-green-700 dark:text-green-400">+12%</span> from last month
             </p>
           </CardContent>
         </Card>
@@ -136,7 +136,7 @@ export default function DashboardPage() {
                 <span className="text-sm font-medium">Profile Completion</span>
                 <span className="text-sm text-muted-foreground">85%</span>
               </div>
-              <Progress value={85} className="h-2" />
+              <Progress aria-label="Profile Completion" value={85} className="h-2" />
             </div>
 
             <div>
@@ -144,7 +144,7 @@ export default function DashboardPage() {
                 <span className="text-sm font-medium">Success Rate</span>
                 <span className="text-sm text-muted-foreground">92%</span>
               </div>
-              <Progress value={92} className="h-2" />
+              <Progress aria-label="Success Rate" value={92} className="h-2" />
             </div>
 
             <div>
@@ -152,11 +152,11 @@ export default function DashboardPage() {
                 <span className="text-sm font-medium">Response Time</span>
                 <span className="text-sm text-muted-foreground">{"< 2h"}</span>
               </div>
-              <Progress value={95} className="h-2" />
+              <Progress aria-label="Response Time" value={95} className="h-2" />
             </div>
 
             <div className="pt-4 border-t">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="flex items-center space-x-2">
                   <Star className="h-4 w-4 text-yellow-500" />
                   <span className="text-sm font-medium">Rating</span>
@@ -173,7 +173,7 @@ export default function DashboardPage() {
         <Card className="hover:shadow-md transition-shadow">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Briefcase className="h-5 w-5 text-blue-600" />
+              <Briefcase className="h-5 w-5 text-blue-600 dark:text-blue-400" />
               Browse Gigs
             </CardTitle>
             <CardDescription>Find your next freelance opportunity</CardDescription>
@@ -191,7 +191,7 @@ export default function DashboardPage() {
         <Card className="hover:shadow-md transition-shadow">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Calendar className="h-5 w-5 text-purple-600" />
+              <Calendar className="h-5 w-5 text-purple-600 dark:text-purple-400" />
               Create Event
             </CardTitle>
             <CardDescription>Organize your next tech meetup</CardDescription>
@@ -209,7 +209,7 @@ export default function DashboardPage() {
         <Card className="hover:shadow-md transition-shadow">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Users className="h-5 w-5 text-green-600" />
+              <Users className="h-5 w-5 text-green-700 dark:text-green-400" />
               Join Community
             </CardTitle>
             <CardDescription>Connect with like-minded developers</CardDescription>

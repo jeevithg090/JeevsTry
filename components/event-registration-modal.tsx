@@ -85,7 +85,7 @@ export function EventRegistrationModal({ isOpen, onClose, event }: EventRegistra
             <p className="text-sm text-muted-foreground mb-6">
               We've sent a confirmation email with event details and calendar invite.
             </p>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               <Button variant="outline" onClick={onClose} className="flex-1">
                 Close
               </Button>

@@ -5,5 +5,9 @@ import { useUser } from "@/lib/user-context"
 export function WelcomeHeading() {
   const { user } = useUser()
   const firstName = user?.name.split(" ")[0]
-  return <h1 className="text-3xl font-bold">Welcome back{firstName ? `, ${firstName}` : ""}! 👋</h1>
+  return (
+    <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
+      Welcome back{firstName ? `, ${firstName}` : ""}! 👋
+    </h1>
+  )
 }

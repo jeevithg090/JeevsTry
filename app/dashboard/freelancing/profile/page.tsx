@@ -6,18 +6,21 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Progress } from "@/components/ui/progress"
 import { Star, MapPin, DollarSign, Edit, Plus, X, Camera, Briefcase } from "lucide-react"
 import { useState } from "react"
+import { getInitials } from "@/lib/auth"
+import { useUser } from "@/lib/user-context"
 
 export default function FreelancerProfilePage() {
+  const { user } = useUser()
   const [isEditing, setIsEditing] = useState(false)
   const [skills, setSkills] = useState(["React", "Node.js", "TypeScript", "MongoDB", "AWS"])
   const [newSkill, setNewSkill] = useState("")
   const [profile, setProfile] = useState({
-    name: "John Doe",
+    name: user?.name ?? "",
     title: "Full-Stack Developer",
     location: "San Francisco, CA",
     hourlyRate: "75",
@@ -49,7 +52,7 @@ export default function FreelancerProfilePage() {
       rating: 5,
       project: "E-commerce Website",
       review:
-        "Excellent work! John delivered exactly what we needed on time and within budget. Great communication throughout the project.",
+        "Excellent work! Delivered exactly what we needed on time and within budget. Great communication throughout the project.",
       date: "2 weeks ago",
     },
     {
@@ -99,9 +102,9 @@ export default function FreelancerProfilePage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">My Profile</h1>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0">
+          <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">My Profile</h1>
           <p className="text-muted-foreground">Manage your freelancer profile and showcase your skills</p>
         </div>
         <Button onClick={() => setIsEditing(!isEditing)} variant={isEditing ? "outline" : "default"}>
@@ -118,16 +121,16 @@ export default function FreelancerProfilePage() {
               <div className="text-center space-y-4">
                 <div className="relative">
                   <Avatar className="h-24 w-24 mx-auto">
-                    <AvatarImage src="/placeholder.svg?height=96&width=96" />
-                    <AvatarFallback className="text-2xl">JD</AvatarFallback>
+                    <AvatarFallback className="text-2xl">{getInitials(user?.name ?? "")}</AvatarFallback>
                   </Avatar>
                   {isEditing && (
                     <Button
                       size="icon"
                       variant="outline"
                       className="absolute bottom-0 right-1/2 translate-x-1/2 translate-y-1/2"
+                      aria-label="Change photo"
                     >
-                      <Camera className="h-4 w-4" />
+                      <Camera className="h-4 w-4" aria-hidden="true" />
                     </Button>
                   )}
                 </div>
@@ -203,25 +206,25 @@ export default function FreelancerProfilePage() {
                   <span>Overall Progress</span>
                   <span>85%</span>
                 </div>
-                <Progress value={85} className="h-2" />
+                <Progress aria-label="Overall Progress" value={85} className="h-2" />
               </div>
 
               <div className="space-y-2 text-sm">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-wrap items-center justify-between gap-2">
                   <span>✅ Basic Info</span>
-                  <span className="text-green-600">Complete</span>
+                  <span className="text-green-700 dark:text-green-400">Complete</span>
                 </div>
-                <div className="flex items-center justify-between">
+                <div className="flex flex-wrap items-center justify-between gap-2">
                   <span>✅ Skills & Experience</span>
-                  <span className="text-green-600">Complete</span>
+                  <span className="text-green-700 dark:text-green-400">Complete</span>
                 </div>
-                <div className="flex items-center justify-between">
+                <div className="flex flex-wrap items-center justify-between gap-2">
                   <span>⚠️ Portfolio</span>
-                  <span className="text-orange-600">3/5 items</span>
+                  <span className="text-orange-700 dark:text-orange-400">3/5 items</span>
                 </div>
-                <div className="flex items-center justify-between">
+                <div className="flex flex-wrap items-center justify-between gap-2">
                   <span>❌ Certifications</span>
-                  <span className="text-red-600">Missing</span>
+                  <span className="text-red-600 dark:text-red-400">Missing</span>
                 </div>
               </div>
             </CardContent>
@@ -234,19 +237,19 @@ export default function FreelancerProfilePage() {
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-4 text-center">
                 <div>
-                  <div className="text-2xl font-bold text-blue-600">23</div>
+                  <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">23</div>
                   <div className="text-xs text-muted-foreground">Projects</div>
                 </div>
                 <div>
-                  <div className="text-2xl font-bold text-green-600">98%</div>
+                  <div className="text-2xl font-bold text-green-700 dark:text-green-400">98%</div>
                   <div className="text-xs text-muted-foreground">Success Rate</div>
                 </div>
                 <div>
-                  <div className="text-2xl font-bold text-purple-600">47</div>
+                  <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">47</div>
                   <div className="text-xs text-muted-foreground">Reviews</div>
                 </div>
                 <div>
-                  <div className="text-2xl font-bold text-orange-600">15</div>
+                  <div className="text-2xl font-bold text-orange-700 dark:text-orange-400">15</div>
                   <div className="text-xs text-muted-foreground">Repeat Clients</div>
                 </div>
               </div>
@@ -257,7 +260,7 @@ export default function FreelancerProfilePage() {
         {/* Main Content */}
         <div className="lg:col-span-2">
           <Tabs defaultValue="overview" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-4">
+            <TabsList className="w-full lg:grid lg:grid-cols-4">
               <TabsTrigger value="overview">Overview</TabsTrigger>
               <TabsTrigger value="portfolio">Portfolio</TabsTrigger>
               <TabsTrigger value="reviews">Reviews</TabsTrigger>
@@ -290,15 +293,15 @@ export default function FreelancerProfilePage() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {isEditing && (
-                    <div className="flex gap-2">
+                    <div className="flex flex-wrap gap-2">
                       <Input
                         placeholder="Add a skill"
                         value={newSkill}
                         onChange={(e) => setNewSkill(e.target.value)}
                         onKeyPress={(e) => e.key === "Enter" && (e.preventDefault(), addSkill())}
                       />
-                      <Button onClick={addSkill} size="icon">
-                        <Plus className="h-4 w-4" />
+                      <Button onClick={addSkill} size="icon" aria-label="Add skill">
+                        <Plus className="h-4 w-4" aria-hidden="true" />
                       </Button>
                     </div>
                   )}
@@ -331,7 +334,7 @@ export default function FreelancerProfilePage() {
                     <div className="flex items-start space-x-3">
                       <Briefcase className="h-5 w-5 text-muted-foreground mt-1" />
                       <div>
-                        <h4 className="font-medium">Senior Full-Stack Developer</h4>
+                        <h3 className="font-medium">Senior Full-Stack Developer</h3>
                         <p className="text-sm text-muted-foreground">TechCorp Inc. • 2021 - Present</p>
                         <p className="text-sm mt-1">
                           Leading development of scalable web applications using React and Node.js
@@ -341,7 +344,7 @@ export default function FreelancerProfilePage() {
                     <div className="flex items-start space-x-3">
                       <Briefcase className="h-5 w-5 text-muted-foreground mt-1" />
                       <div>
-                        <h4 className="font-medium">Frontend Developer</h4>
+                        <h3 className="font-medium">Frontend Developer</h3>
                         <p className="text-sm text-muted-foreground">StartupXYZ • 2019 - 2021</p>
                         <p className="text-sm mt-1">Built responsive web applications and improved user experience</p>
                       </div>
@@ -352,7 +355,7 @@ export default function FreelancerProfilePage() {
             </TabsContent>
 
             <TabsContent value="portfolio" className="space-y-6">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-wrap items-center justify-between gap-2">
                 <h3 className="text-lg font-semibold">Portfolio Projects</h3>
                 <Button size="sm" className="gap-2">
                   <Plus className="h-4 w-4" />
@@ -372,7 +375,7 @@ export default function FreelancerProfilePage() {
                       />
                     </div>
                     <CardContent className="p-4">
-                      <h4 className="font-medium mb-2">{project.title}</h4>
+                      <h3 className="font-medium mb-2">{project.title}</h3>
                       <p className="text-sm text-muted-foreground mb-3">{project.description}</p>
                       <div className="flex flex-wrap gap-1">
                         {project.technologies.map((tech) => (
@@ -388,7 +391,7 @@ export default function FreelancerProfilePage() {
             </TabsContent>
 
             <TabsContent value="reviews" className="space-y-6">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-wrap items-center justify-between gap-2">
                 <h3 className="text-lg font-semibold">Client Reviews</h3>
                 <div className="flex items-center gap-2">
                   <Star className="h-5 w-5 fill-yellow-400 text-yellow-400" />
@@ -403,7 +406,6 @@ export default function FreelancerProfilePage() {
                     <CardContent className="p-4">
                       <div className="flex items-start space-x-3">
                         <Avatar>
-                          <AvatarImage src="/placeholder.svg?height=40&width=40" />
                           <AvatarFallback>{review.avatar}</AvatarFallback>
                         </Avatar>
                         <div className="flex-1">
@@ -458,15 +460,15 @@ export default function FreelancerProfilePage() {
                   <CardTitle>Notification Preferences</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
                     <span>New project invitations</span>
                     <input type="checkbox" defaultChecked />
                   </div>
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
                     <span>Proposal updates</span>
                     <input type="checkbox" defaultChecked />
                   </div>
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
                     <span>Client messages</span>
                     <input type="checkbox" defaultChecked />
                   </div>
