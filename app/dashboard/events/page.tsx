@@ -15,7 +15,7 @@ import {
   Video,
   Plus,
   Search,
-  Filter,
+  X,
   Share,
   Bookmark,
   ExternalLink,
@@ -35,12 +35,23 @@ import { EventRegistrationModal, type RegistrableEvent } from "@/components/even
 import { useState } from "react"
 import { useSearchParams } from "next/navigation"
 import { pickAllowed } from "@/lib/utils"
+import { filterEvents, locationOptions, type EventFilters } from "@/lib/filters"
+import { EmptyState } from "@/components/empty-state"
+
+const PRICE_FILTERS = ["all", "free", "paid"] as const
+const DEFAULT_EVENT_FILTERS: EventFilters = { query: "", type: "all", location: "all", price: "all" }
 
 const EVENT_TABS = ["discover", "registered", "hosting", "analytics", "saved", "calendar"] as const
 
 export default function EventsPage() {
   const [selectedEvent, setSelectedEvent] = useState<RegistrableEvent | null>(null)
   const [isRegistrationModalOpen, setIsRegistrationModalOpen] = useState(false)
+
+  const [eventFilters, setEventFilters] = useState<EventFilters>(DEFAULT_EVENT_FILTERS)
+  const hasActiveFilters = JSON.stringify(eventFilters) !== JSON.stringify(DEFAULT_EVENT_FILTERS)
+  const updateFilter = <K extends keyof EventFilters>(key: K, value: EventFilters[K]) =>
+    setEventFilters((prev) => ({ ...prev, [key]: value }))
+  const clearFilters = () => setEventFilters(DEFAULT_EVENT_FILTERS)
 
   const handleRegisterClick = (event: RegistrableEvent) => {
     setSelectedEvent(event)
@@ -181,6 +192,10 @@ export default function EventsPage() {
     },
   ]
 
+  const visibleFeatured = filterEvents(featuredEvents, eventFilters)
+  const visibleUpcoming = filterEvents(upcomingEvents, eventFilters)
+  const locations = locationOptions([...featuredEvents, ...upcomingEvents])
+
   const registeredEvents = [
     {
       id: 9,
@@ -251,9 +266,11 @@ export default function EventsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">{isFreelancer ? "Discover Events" : "Events Hub"}</h1>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0">
+          <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
+            {isFreelancer ? "Discover Events" : "Events Hub"}
+          </h1>
           <p className="text-muted-foreground">
             {isFreelancer
               ? "Find and join amazing tech events to grow your network"
@@ -271,7 +288,7 @@ export default function EventsPage() {
       </div>
 
       <Tabs defaultValue={pickAllowed(requestedTab, EVENT_TABS, "discover")} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="w-full lg:grid lg:grid-cols-4">
           <TabsTrigger value="discover">{isFreelancer ? "Browse Events" : "Discover Events"}</TabsTrigger>
           <TabsTrigger value="registered">{isFreelancer ? "My Events" : "My Registrations"}</TabsTrigger>
           {(isClient || isStartup) && <TabsTrigger value="hosting">Hosting</TabsTrigger>}
@@ -284,13 +301,20 @@ export default function EventsPage() {
           {/* Search and Filters */}
           <Card>
             <CardContent className="p-6">
-              <div className="flex flex-col md:flex-row gap-4">
+              <div className="flex flex-col gap-4 lg:flex-row lg:flex-wrap">
                 <div className="relative flex-1">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input placeholder="Search events..." className="pl-10" />
+                  <Input
+                    type="search"
+                    aria-label="Search events"
+                    placeholder="Search events..."
+                    className="pl-10"
+                    value={eventFilters.query}
+                    onChange={(e) => updateFilter("query", e.target.value)}
+                  />
                 </div>
-                <Select>
-                  <SelectTrigger className="w-full md:w-48">
+                <Select value={eventFilters.type} onValueChange={(value) => updateFilter("type", value)}>
+                  <SelectTrigger className="w-full lg:w-48" aria-label="Event type">
                     <SelectValue placeholder="Event Type" />
                   </SelectTrigger>
                   <SelectContent>
@@ -304,21 +328,25 @@ export default function EventsPage() {
                     <SelectItem value="networking">🌐 Networking</SelectItem>
                   </SelectContent>
                 </Select>
-                <Select>
-                  <SelectTrigger className="w-full md:w-48">
+                <Select value={eventFilters.location} onValueChange={(value) => updateFilter("location", value)}>
+                  <SelectTrigger className="w-full lg:w-48" aria-label="Location">
                     <SelectValue placeholder="Location" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All Locations</SelectItem>
                     <SelectItem value="online">Online</SelectItem>
-                    <SelectItem value="san-francisco">San Francisco</SelectItem>
-                    <SelectItem value="new-york">New York</SelectItem>
-                    <SelectItem value="london">London</SelectItem>
-                    <SelectItem value="berlin">Berlin</SelectItem>
+                    {locations.map((location) => (
+                      <SelectItem key={location.value} value={location.value}>
+                        {location.label}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
-                <Select>
-                  <SelectTrigger className="w-full md:w-48">
+                <Select
+                  value={eventFilters.price}
+                  onValueChange={(value) => updateFilter("price", pickAllowed(value, PRICE_FILTERS, "all"))}
+                >
+                  <SelectTrigger className="w-full lg:w-48" aria-label="Price">
                     <SelectValue placeholder="Price" />
                   </SelectTrigger>
                   <SelectContent>
@@ -327,142 +355,170 @@ export default function EventsPage() {
                     <SelectItem value="paid">Paid</SelectItem>
                   </SelectContent>
                 </Select>
-                <Button variant="outline" className="gap-2">
-                  <Filter className="h-4 w-4" />
-                  More Filters
-                </Button>
+                {hasActiveFilters && (
+                  <Button variant="ghost" className="gap-2" onClick={clearFilters}>
+                    <X className="h-4 w-4" aria-hidden="true" />
+                    Clear filters
+                  </Button>
+                )}
               </div>
             </CardContent>
           </Card>
 
+          <p className="text-sm text-muted-foreground" aria-live="polite">
+            {visibleFeatured.length + visibleUpcoming.length}{" "}
+            {visibleFeatured.length + visibleUpcoming.length === 1 ? "event" : "events"} found
+          </p>
+          {visibleFeatured.length + visibleUpcoming.length === 0 && (
+            <EmptyState
+              icon={Search}
+              title="No events match your filters"
+              description="Try another keyword, event type or location."
+              action={
+                <Button variant="outline" onClick={clearFilters}>
+                  Clear filters
+                </Button>
+              }
+            />
+          )}
+
           {/* Featured Events */}
-          <div>
-            <h2 className="text-xl font-semibold mb-4">Featured Events</h2>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {featuredEvents.map((event) => (
-                <Card key={event.id} className="overflow-hidden hover:shadow-lg transition-shadow">
-                  <div className="h-48 bg-gradient-to-r from-blue-500 to-purple-600 relative">
-                    <div className="absolute top-4 left-4">
-                      <Badge className="bg-white text-black">Featured</Badge>
-                    </div>
-                    <div className="absolute top-4 right-4">
-                      <Button variant="ghost" size="icon" className="text-white hover:bg-white/20">
-                        <Bookmark className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                  <CardHeader>
-                    <div className="flex items-start justify-between">
-                      <div className="space-y-2">
-                        {getEventTypeBadge(event.type)}
-                        <CardTitle className="text-lg">{event.title}</CardTitle>
-                        <CardDescription>{event.description}</CardDescription>
+          {visibleFeatured.length > 0 && (
+            <div>
+              <h2 className="text-xl font-semibold mb-4">Featured Events</h2>
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {visibleFeatured.map((event) => (
+                  <Card key={event.id} className="overflow-hidden hover:shadow-lg transition-shadow">
+                    <div className="h-48 bg-gradient-to-r from-blue-500 to-purple-600 relative">
+                      <div className="absolute top-4 left-4">
+                        <Badge className="bg-white text-black">Featured</Badge>
                       </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-3">
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Calendar className="h-4 w-4" />
-                        <span>{event.startDate}</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Clock className="h-4 w-4" />
-                        <span>{event.time}</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        {event.isOnline ? <Video className="h-4 w-4" /> : <MapPin className="h-4 w-4" />}
-                        <span>{event.location}</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Users className="h-4 w-4" />
-                        <span>
-                          {event.registered} registered • {event.maxAttendees} max
-                        </span>
-                      </div>
-
-                      <div className="flex flex-wrap gap-1 mt-2">
-                        {event.tags.map((tag) => (
-                          <Badge key={tag} variant="outline" className="text-xs">
-                            {tag}
-                          </Badge>
-                        ))}
-                      </div>
-
-                      <div className="flex gap-2 pt-2">
-                        <Button className="flex-1" onClick={() => handleRegisterClick(event)}>
-                          {event.price === "Free" ? "Register Free" : `Register ${event.price}`}
-                        </Button>
-                        <Button variant="outline" size="icon">
-                          <Share className="h-4 w-4" />
+                      <div className="absolute top-4 right-4">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-white hover:bg-white/20"
+                          aria-label="Save event"
+                        >
+                          <Bookmark className="h-4 w-4" aria-hidden="true" />
                         </Button>
                       </div>
                     </div>
-                  </CardContent>
-                </Card>
-              ))}
+                    <CardHeader>
+                      <div className="flex items-start justify-between">
+                        <div className="space-y-2">
+                          {getEventTypeBadge(event.type)}
+                          <CardTitle className="text-lg">{event.title}</CardTitle>
+                          <CardDescription>{event.description}</CardDescription>
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-3">
+                        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted-foreground">
+                          <Calendar className="h-4 w-4" />
+                          <span>{event.startDate}</span>
+                        </div>
+                        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted-foreground">
+                          <Clock className="h-4 w-4" />
+                          <span>{event.time}</span>
+                        </div>
+                        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted-foreground">
+                          {event.isOnline ? <Video className="h-4 w-4" /> : <MapPin className="h-4 w-4" />}
+                          <span>{event.location}</span>
+                        </div>
+                        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted-foreground">
+                          <Users className="h-4 w-4" />
+                          <span>
+                            {event.registered} registered • {event.maxAttendees} max
+                          </span>
+                        </div>
+
+                        <div className="flex flex-wrap gap-1 mt-2">
+                          {event.tags.map((tag) => (
+                            <Badge key={tag} variant="outline" className="text-xs">
+                              {tag}
+                            </Badge>
+                          ))}
+                        </div>
+
+                        <div className="flex flex-wrap gap-2 pt-2">
+                          <Button className="flex-1" onClick={() => handleRegisterClick(event)}>
+                            {event.price === "Free" ? "Register Free" : `Register ${event.price}`}
+                          </Button>
+                          <Button variant="outline" size="icon" aria-label="Share event">
+                            <Share className="h-4 w-4" aria-hidden="true" />
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Upcoming Events */}
-          <div>
-            <h2 className="text-xl font-semibold mb-4">Upcoming Events</h2>
-            <div className="space-y-4">
-              {upcomingEvents.map((event) => (
-                <Card key={event.id} className="hover:shadow-md transition-shadow">
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-4">
-                        <div className="w-16 h-16 bg-gradient-to-r from-green-400 to-blue-500 rounded-lg flex items-center justify-center">
-                          {getEventTypeIcon(event.type)}
+          {visibleUpcoming.length > 0 && (
+            <div>
+              <h2 className="text-xl font-semibold mb-4">Upcoming Events</h2>
+              <div className="space-y-4">
+                {visibleUpcoming.map((event) => (
+                  <Card key={event.id} className="hover:shadow-md transition-shadow">
+                    <CardContent className="p-6">
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <div className="flex items-center space-x-4">
+                          <div className="w-16 h-16 bg-gradient-to-r from-green-400 to-blue-500 rounded-lg flex items-center justify-center">
+                            {getEventTypeIcon(event.type)}
+                          </div>
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-2">
+                              <h3 className="font-semibold">{event.title}</h3>
+                              {getEventTypeBadge(event.type)}
+                            </div>
+                            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
+                              <div className="flex items-center gap-1">
+                                <Calendar className="h-4 w-4" />
+                                <span>{event.startDate}</span>
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <Clock className="h-4 w-4" />
+                                <span>{event.time}</span>
+                              </div>
+                              <div className="flex items-center gap-1">
+                                {event.isOnline ? <Video className="h-4 w-4" /> : <MapPin className="h-4 w-4" />}
+                                <span>{event.location}</span>
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <Users className="h-4 w-4" />
+                                <span>{event.registered} attending</span>
+                              </div>
+                            </div>
+                            <p className="text-sm text-muted-foreground">{event.description}</p>
+                            <div className="flex flex-wrap gap-1 mt-2">
+                              {event.tags.map((tag) => (
+                                <Badge key={tag} variant="outline" className="text-xs">
+                                  {tag}
+                                </Badge>
+                              ))}
+                            </div>
+                          </div>
                         </div>
-                        <div className="space-y-1">
-                          <div className="flex items-center gap-2">
-                            <h3 className="font-semibold">{event.title}</h3>
-                            {getEventTypeBadge(event.type)}
-                          </div>
-                          <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                            <div className="flex items-center gap-1">
-                              <Calendar className="h-4 w-4" />
-                              <span>{event.startDate}</span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <Clock className="h-4 w-4" />
-                              <span>{event.time}</span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                              {event.isOnline ? <Video className="h-4 w-4" /> : <MapPin className="h-4 w-4" />}
-                              <span>{event.location}</span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <Users className="h-4 w-4" />
-                              <span>{event.registered} attending</span>
-                            </div>
-                          </div>
-                          <p className="text-sm text-muted-foreground">{event.description}</p>
-                          <div className="flex flex-wrap gap-1 mt-2">
-                            {event.tags.map((tag) => (
-                              <Badge key={tag} variant="outline" className="text-xs">
-                                {tag}
-                              </Badge>
-                            ))}
-                          </div>
+                        <div className="flex flex-wrap gap-2">
+                          <Button variant="outline" size="sm">
+                            View Details
+                          </Button>
+                          <Button size="sm" onClick={() => handleRegisterClick(event)}>
+                            {event.price === "Free" ? "Register Free" : `Register ${event.price}`}
+                          </Button>
                         </div>
                       </div>
-                      <div className="flex gap-2">
-                        <Button variant="outline" size="sm">
-                          View Details
-                        </Button>
-                        <Button size="sm" onClick={() => handleRegisterClick(event)}>
-                          {event.price === "Free" ? "Register Free" : `Register ${event.price}`}
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
         </TabsContent>
 
         <TabsContent value="registered" className="space-y-6">
@@ -470,7 +526,7 @@ export default function EventsPage() {
             {registeredEvents.map((event) => (
               <Card key={event.id}>
                 <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
                     <div className="flex items-center space-x-4">
                       <div className="w-12 h-12 bg-gradient-to-r from-purple-400 to-pink-500 rounded-lg flex items-center justify-center">
                         {getEventTypeIcon(event.type)}
@@ -480,7 +536,7 @@ export default function EventsPage() {
                           <h3 className="font-semibold">{event.title}</h3>
                           {getEventTypeBadge(event.type)}
                         </div>
-                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
                           <span>{event.startDate}</span>
                           <span>{event.location}</span>
                           <span>Ticket: {event.ticketType}</span>
@@ -488,7 +544,7 @@ export default function EventsPage() {
                         <p className="text-sm text-muted-foreground">{event.description}</p>
                       </div>
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex flex-wrap gap-2">
                       <Button variant="outline" size="sm">
                         <ExternalLink className="h-4 w-4 mr-2" />
                         Event Details
@@ -510,7 +566,7 @@ export default function EventsPage() {
               {myEvents.map((event) => (
                 <Card key={event.id}>
                   <CardHeader>
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
                       <div>
                         <CardTitle>{event.title}</CardTitle>
                         <CardDescription>
@@ -535,14 +591,18 @@ export default function EventsPage() {
                           {event.registered}/{event.maxAttendees} spots filled
                         </span>
                       </div>
-                      <Progress value={(event.registered / event.maxAttendees) * 100} className="h-2" />
+                      <Progress
+                        aria-label="Registration capacity"
+                        value={(event.registered / event.maxAttendees) * 100}
+                        className="h-2"
+                      />
 
-                      <div className="flex items-center justify-between">
+                      <div className="flex flex-wrap items-center justify-between gap-2">
                         <div className="text-sm text-muted-foreground">
                           Revenue:{" "}
                           <span className="font-medium text-foreground">${event.revenue.toLocaleString()}</span>
                         </div>
-                        <div className="flex gap-2">
+                        <div className="flex flex-wrap gap-2">
                           <Button variant="outline" size="sm" asChild>
                             <Link href={`/dashboard/events/manage/${event.id}`}>
                               <Settings className="h-4 w-4 mr-2" />
@@ -575,7 +635,7 @@ export default function EventsPage() {
                 <CardContent>
                   <div className="text-2xl font-bold">12</div>
                   <p className="text-xs text-muted-foreground">
-                    <span className="text-green-600">+2</span> this month
+                    <span className="text-green-700 dark:text-green-400">+2</span> this month
                   </p>
                 </CardContent>
               </Card>
@@ -588,7 +648,7 @@ export default function EventsPage() {
                 <CardContent>
                   <div className="text-2xl font-bold">1,247</div>
                   <p className="text-xs text-muted-foreground">
-                    <span className="text-blue-600">+89</span> this month
+                    <span className="text-blue-600 dark:text-blue-400">+89</span> this month
                   </p>
                 </CardContent>
               </Card>
@@ -601,7 +661,7 @@ export default function EventsPage() {
                 <CardContent>
                   <div className="text-2xl font-bold">$24,850</div>
                   <p className="text-xs text-muted-foreground">
-                    <span className="text-green-600">+15%</span> from last month
+                    <span className="text-green-700 dark:text-green-400">+15%</span> from last month
                   </p>
                 </CardContent>
               </Card>
@@ -643,28 +703,28 @@ export default function EventsPage() {
                         <span>Workshops</span>
                         <span>40%</span>
                       </div>
-                      <Progress value={40} className="h-2" />
+                      <Progress aria-label="Workshops" value={40} className="h-2" />
                     </div>
                     <div>
                       <div className="flex justify-between text-sm mb-1">
                         <span>Webinars</span>
                         <span>30%</span>
                       </div>
-                      <Progress value={30} className="h-2" />
+                      <Progress aria-label="Webinars" value={30} className="h-2" />
                     </div>
                     <div>
                       <div className="flex justify-between text-sm mb-1">
                         <span>Hackathons</span>
                         <span>20%</span>
                       </div>
-                      <Progress value={20} className="h-2" />
+                      <Progress aria-label="Hackathons" value={20} className="h-2" />
                     </div>
                     <div>
                       <div className="flex justify-between text-sm mb-1">
                         <span>Conferences</span>
                         <span>10%</span>
                       </div>
-                      <Progress value={10} className="h-2" />
+                      <Progress aria-label="Conferences" value={10} className="h-2" />
                     </div>
                   </div>
                 </CardContent>
