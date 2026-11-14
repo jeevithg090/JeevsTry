@@ -1,5 +1,6 @@
 "use client"
 
+import { toast } from "@/hooks/use-toast"
 import type React from "react"
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -14,9 +15,10 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { ArrowLeft, DollarSign, Calendar, Clock, Star, Paperclip, Send } from "lucide-react"
 import Link from "next/link"
 import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
 
-export default function ApplyToGigPage({ params }: { params: { id: string } }) {
+export default function ApplyToGigPage() {
+  const params = useParams<{ id: string }>()
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [proposal, setProposal] = useState({
@@ -56,11 +58,9 @@ export default function ApplyToGigPage({ params }: { params: { id: string } }) {
     e.preventDefault()
     setIsLoading(true)
 
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false)
-      router.push("/dashboard/freelancing?tab=proposals")
-    }, 2000)
+    // Demo mode: no persistence API yet, so confirm locally and navigate.
+    toast({ title: "Proposal submitted", description: "Track it under My Proposals." })
+    router.push("/dashboard/freelancing?tab=my-proposals")
   }
 
   return (

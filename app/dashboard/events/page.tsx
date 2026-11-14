@@ -31,14 +31,18 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import { useUser } from "@/lib/user-context"
-import { EventRegistrationModal } from "@/components/event-registration-modal"
+import { EventRegistrationModal, type RegistrableEvent } from "@/components/event-registration-modal"
 import { useState } from "react"
+import { useSearchParams } from "next/navigation"
+import { pickAllowed } from "@/lib/utils"
+
+const EVENT_TABS = ["discover", "registered", "hosting", "analytics", "saved", "calendar"] as const
 
 export default function EventsPage() {
-  const [selectedEvent, setSelectedEvent] = useState<any>(null)
+  const [selectedEvent, setSelectedEvent] = useState<RegistrableEvent | null>(null)
   const [isRegistrationModalOpen, setIsRegistrationModalOpen] = useState(false)
 
-  const handleRegisterClick = (event: any) => {
+  const handleRegisterClick = (event: RegistrableEvent) => {
     setSelectedEvent(event)
     setIsRegistrationModalOpen(true)
   }
@@ -242,7 +246,8 @@ export default function EventsPage() {
     return <Badge variant={badge.variant}>{badge.label}</Badge>
   }
 
-  const { user, isClient, isFreelancer, isStartup } = useUser()
+  const { isClient, isFreelancer, isStartup } = useUser()
+  const requestedTab = useSearchParams().get("tab")
 
   return (
     <div className="space-y-6">
@@ -265,7 +270,7 @@ export default function EventsPage() {
         )}
       </div>
 
-      <Tabs defaultValue="discover" className="space-y-6">
+      <Tabs defaultValue={pickAllowed(requestedTab, EVENT_TABS, "discover")} className="space-y-6">
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="discover">{isFreelancer ? "Browse Events" : "Discover Events"}</TabsTrigger>
           <TabsTrigger value="registered">{isFreelancer ? "My Events" : "My Registrations"}</TabsTrigger>

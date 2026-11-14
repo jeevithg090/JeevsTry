@@ -27,6 +27,12 @@ import {
 import Link from "next/link"
 import { useState } from "react"
 import { useUser } from "@/lib/user-context"
+import { formatBudget, type BudgetType } from "@/lib/format"
+import { useSearchParams } from "next/navigation"
+import { pickAllowed } from "@/lib/utils"
+
+const CLIENT_TABS = ["my-projects", "active-contracts", "proposals", "analytics"] as const
+const FREELANCER_TABS = ["browse-gigs", "my-proposals", "saved-gigs", "my-stats"] as const
 
 // Mock data
 const mockGigs = [
@@ -36,7 +42,7 @@ const mockGigs = [
     description:
       "Looking for an experienced React Native developer to build a cross-platform e-commerce mobile application with payment integration, user authentication, and real-time notifications.",
     budget: 5000,
-    budgetType: "fixed" as const,
+    budgetType: "fixed" as BudgetType,
     duration: "2-3 months",
     experienceLevel: "Expert",
     skills: ["React Native", "TypeScript", "Firebase", "Stripe"],
@@ -54,7 +60,7 @@ const mockGigs = [
     description:
       "Need a full-stack developer to create an AI-powered analytics dashboard using Python, React, and machine learning libraries for data visualization and insights.",
     budget: 75,
-    budgetType: "hourly" as const,
+    budgetType: "hourly" as BudgetType,
     duration: "1-2 months",
     experienceLevel: "Intermediate",
     skills: ["Python", "React", "Machine Learning", "D3.js"],
@@ -75,7 +81,7 @@ const mockMyGigs = [
     description:
       "Building a single-page application for healthcare management with patient records, appointment scheduling, and telemedicine features.",
     budget: 8000,
-    budgetType: "fixed" as const,
+    budgetType: "fixed" as BudgetType,
     duration: "3-4 months",
     experienceLevel: "Expert",
     skills: ["Vue.js", "Node.js", "PostgreSQL", "WebRTC"],
@@ -112,7 +118,8 @@ const mockProposals = [
 ]
 
 export default function FreelancingPage() {
-  const { user, isClient, isFreelancer, isStartup } = useUser()
+  const { isClient, isStartup } = useUser()
+  const requestedTab = useSearchParams().get("tab")
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("all")
   const [selectedBudget, setSelectedBudget] = useState("all")
@@ -138,7 +145,7 @@ export default function FreelancingPage() {
           </Button>
         </div>
 
-        <Tabs defaultValue="my-projects" className="space-y-6">
+        <Tabs defaultValue={pickAllowed(requestedTab, CLIENT_TABS, "my-projects")} className="space-y-6">
           <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="my-projects">My Projects</TabsTrigger>
             <TabsTrigger value="active-contracts">Active Contracts</TabsTrigger>
@@ -176,9 +183,7 @@ export default function FreelancingPage() {
                     <div className="grid md:grid-cols-4 gap-4 mb-4">
                       <div className="flex items-center gap-2">
                         <DollarSign className="h-4 w-4 text-muted-foreground" />
-                        <span className="font-medium">
-                          ${gig.budget.toLocaleString()} {gig.budgetType === "hourly" ? "/hr" : "fixed"}
-                        </span>
+                        <span className="font-medium">{formatBudget(gig.budget, gig.budgetType)}</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <Clock className="h-4 w-4 text-muted-foreground" />
@@ -310,7 +315,7 @@ export default function FreelancingPage() {
         </Button>
       </div>
 
-      <Tabs defaultValue="browse-gigs" className="space-y-6">
+      <Tabs defaultValue={pickAllowed(requestedTab, FREELANCER_TABS, "browse-gigs")} className="space-y-6">
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="browse-gigs">Browse Projects</TabsTrigger>
           <TabsTrigger value="my-proposals">My Proposals</TabsTrigger>
@@ -383,9 +388,7 @@ export default function FreelancingPage() {
                   <div className="grid md:grid-cols-4 gap-4 mb-4">
                     <div className="flex items-center gap-2">
                       <DollarSign className="h-4 w-4 text-muted-foreground" />
-                      <span className="font-medium">
-                        ${gig.budget.toLocaleString()} {gig.budgetType === "hourly" ? "/hr" : "fixed"}
-                      </span>
+                      <span className="font-medium">{formatBudget(gig.budget, gig.budgetType)}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <Clock className="h-4 w-4 text-muted-foreground" />

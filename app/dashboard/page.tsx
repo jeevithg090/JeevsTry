@@ -1,21 +1,25 @@
+import Link from "next/link"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
-import { Briefcase, Calendar, MessageCircle, DollarSign, Users, Star, ArrowUpRight, Plus } from 'lucide-react'
+import { WelcomeHeading } from "@/components/welcome-heading"
+import { Briefcase, Calendar, MessageCircle, DollarSign, Users, Star, ArrowUpRight, Plus } from "lucide-react"
 
 export default function DashboardPage() {
   return (
     <div className="space-y-6">
       {/* Welcome Section */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Welcome back, John! 👋</h1>
+          <WelcomeHeading />
           <p className="text-muted-foreground">Here's what's happening with your projects today.</p>
         </div>
-        <Button className="gap-2">
-          <Plus className="h-4 w-4" />
-          Quick Action
+        <Button className="gap-2" asChild>
+          <Link href="/dashboard/events/create">
+            <Plus className="h-4 w-4" aria-hidden="true" />
+            Host an Event
+          </Link>
         </Button>
       </div>
 
@@ -90,7 +94,7 @@ export default function DashboardPage() {
               </div>
               <Badge variant="secondary">Freelancing</Badge>
             </div>
-            
+
             <div className="flex items-center space-x-4">
               <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
               <div className="flex-1">
@@ -99,7 +103,7 @@ export default function DashboardPage() {
               </div>
               <Badge variant="secondary">Events</Badge>
             </div>
-            
+
             <div className="flex items-center space-x-4">
               <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
               <div className="flex-1">
@@ -108,7 +112,7 @@ export default function DashboardPage() {
               </div>
               <Badge variant="secondary">Community</Badge>
             </div>
-            
+
             <div className="flex items-center space-x-4">
               <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
               <div className="flex-1">
@@ -134,7 +138,7 @@ export default function DashboardPage() {
               </div>
               <Progress value={85} className="h-2" />
             </div>
-            
+
             <div>
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm font-medium">Success Rate</span>
@@ -142,7 +146,7 @@ export default function DashboardPage() {
               </div>
               <Progress value={92} className="h-2" />
             </div>
-            
+
             <div>
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm font-medium">Response Time</span>
@@ -166,7 +170,7 @@ export default function DashboardPage() {
 
       {/* Quick Actions */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="cursor-pointer hover:shadow-md transition-shadow">
+        <Card className="hover:shadow-md transition-shadow">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Briefcase className="h-5 w-5 text-blue-600" />
@@ -175,14 +179,16 @@ export default function DashboardPage() {
             <CardDescription>Find your next freelance opportunity</CardDescription>
           </CardHeader>
           <CardContent>
-            <Button variant="outline" className="w-full">
-              Explore Opportunities
-              <ArrowUpRight className="ml-2 h-4 w-4" />
+            <Button variant="outline" className="w-full" asChild>
+              <Link href="/dashboard/freelancing">
+                Explore Opportunities
+                <ArrowUpRight className="ml-2 h-4 w-4" aria-hidden="true" />
+              </Link>
             </Button>
           </CardContent>
         </Card>
 
-        <Card className="cursor-pointer hover:shadow-md transition-shadow">
+        <Card className="hover:shadow-md transition-shadow">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Calendar className="h-5 w-5 text-purple-600" />
@@ -191,14 +197,16 @@ export default function DashboardPage() {
             <CardDescription>Organize your next tech meetup</CardDescription>
           </CardHeader>
           <CardContent>
-            <Button variant="outline" className="w-full">
-              Start Planning
-              <ArrowUpRight className="ml-2 h-4 w-4" />
+            <Button variant="outline" className="w-full" asChild>
+              <Link href="/dashboard/events/create">
+                Start Planning
+                <ArrowUpRight className="ml-2 h-4 w-4" aria-hidden="true" />
+              </Link>
             </Button>
           </CardContent>
         </Card>
 
-        <Card className="cursor-pointer hover:shadow-md transition-shadow">
+        <Card className="hover:shadow-md transition-shadow">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Users className="h-5 w-5 text-green-600" />
@@ -207,9 +215,11 @@ export default function DashboardPage() {
             <CardDescription>Connect with like-minded developers</CardDescription>
           </CardHeader>
           <CardContent>
-            <Button variant="outline" className="w-full">
-              Discover Groups
-              <ArrowUpRight className="ml-2 h-4 w-4" />
+            <Button variant="outline" className="w-full" asChild>
+              <Link href="/dashboard/community">
+                Discover Groups
+                <ArrowUpRight className="ml-2 h-4 w-4" aria-hidden="true" />
+              </Link>
             </Button>
           </CardContent>
         </Card>

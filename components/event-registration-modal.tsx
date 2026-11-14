@@ -1,5 +1,6 @@
 "use client"
 
+import { toast } from "@/hooks/use-toast"
 import type React from "react"
 
 import { useState } from "react"
@@ -13,21 +14,23 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Badge } from "@/components/ui/badge"
 import { Calendar, MapPin, Clock, Users, CheckCircle } from "lucide-react"
 
+export interface RegistrableEvent {
+  id: number
+  title: string
+  type: string
+  startDate: string
+  time: string
+  location: string
+  isOnline: boolean
+  price: string
+  maxAttendees: number
+  registered: number
+}
+
 interface EventRegistrationModalProps {
   isOpen: boolean
   onClose: () => void
-  event: {
-    id: number
-    title: string
-    type: string
-    startDate: string
-    time: string
-    location: string
-    isOnline: boolean
-    price: string
-    maxAttendees: number
-    registered: number
-  }
+  event: RegistrableEvent
 }
 
 export function EventRegistrationModal({ isOpen, onClose, event }: EventRegistrationModalProps) {
@@ -52,7 +55,11 @@ export function EventRegistrationModal({ isOpen, onClose, event }: EventRegistra
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!formData.agreeToTerms) {
-      alert("Please agree to the terms and conditions")
+      toast({
+        title: "Terms not accepted",
+        description: "Please agree to the terms and conditions.",
+        variant: "destructive",
+      })
       return
     }
 

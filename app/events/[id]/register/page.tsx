@@ -1,5 +1,6 @@
 "use client"
 
+import { toast } from "@/hooks/use-toast"
 import type React from "react"
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -15,9 +16,10 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Calendar, MapPin, Clock, Users, Star, Share, ArrowLeft, CreditCard, Shield, CheckCircle } from "lucide-react"
 import Link from "next/link"
 import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
 
-export default function EventRegistrationPage({ params }: { params: { id: string } }) {
+export default function EventRegistrationPage() {
+  const params = useParams<{ id: string }>()
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [formData, setFormData] = useState({
@@ -103,9 +105,9 @@ export default function EventRegistrationPage({ params }: { params: { id: string
       { time: "6:00 PM", activity: "Day 1 Wrap-up" },
     ],
     speakers: [
-      { name: "Dr. Sarah Chen", title: "AI Research Director at Google" },
-      { name: "Marcus Johnson", title: "Founder of AI for Good Initiative" },
-      { name: "Lisa Rodriguez", title: "VP of Engineering at OpenAI" },
+      { name: "Dr. Sarah Chen", title: "AI Research Director" },
+      { name: "Marcus Johnson", title: "Founder, AI for Good" },
+      { name: "Lisa Rodriguez", title: "VP of Engineering" },
     ],
     sponsors: ["Google", "Microsoft", "OpenAI", "TechCrunch"],
   }
@@ -117,17 +119,19 @@ export default function EventRegistrationPage({ params }: { params: { id: string
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!formData.agreeToTerms) {
-      alert("Please agree to the terms and conditions")
+      toast({
+        title: "Terms not accepted",
+        description: "Please agree to the terms and conditions.",
+        variant: "destructive",
+      })
       return
     }
 
     setIsLoading(true)
 
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false)
-      router.push(`/events/${event.id}/confirmation`)
-    }, 2000)
+    // Demo mode: there is no registration API yet, so confirm locally.
+    toast({ title: "You're registered!", description: `See you at ${event.title}.` })
+    router.push("/dashboard/events?tab=registered")
   }
 
   const selectedTicket = event.ticketTypes.find((t) => t.id === formData.ticketType)
@@ -138,7 +142,7 @@ export default function EventRegistrationPage({ params }: { params: { id: string
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center space-x-4 mb-6">
             <Button variant="ghost" size="icon" asChild>
-              <Link href="/events">
+              <Link href="/dashboard/events" aria-label="Back to events">
                 <ArrowLeft className="h-4 w-4" />
               </Link>
             </Button>
@@ -326,14 +330,7 @@ export default function EventRegistrationPage({ params }: { params: { id: string
                           onCheckedChange={(checked) => handleInputChange("agreeToTerms", checked as boolean)}
                         />
                         <Label htmlFor="agreeToTerms" className="text-sm">
-                          I agree to the{" "}
-                          <Link href="/terms" className="text-blue-600 hover:underline">
-                            Terms and Conditions
-                          </Link>{" "}
-                          and{" "}
-                          <Link href="/privacy" className="text-blue-600 hover:underline">
-                            Privacy Policy
-                          </Link>
+                          I agree to the event Terms and Conditions and Privacy Policy
                         </Label>
                       </div>
 
