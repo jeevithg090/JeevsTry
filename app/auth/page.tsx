@@ -56,13 +56,6 @@ export default function AuthPage() {
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Link>
             </Button>
-
-            <p className="text-center text-sm text-muted-foreground">
-              Forgot your password?{" "}
-              <Link href="/auth/forgot-password" className="text-blue-600 hover:underline">
-                Reset it here
-              </Link>
-            </p>
           </CardContent>
         </Card>
 
@@ -105,17 +98,6 @@ export default function AuthPage() {
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Link>
             </Button>
-
-            <p className="text-center text-sm text-muted-foreground">
-              By signing up, you agree to our{" "}
-              <Link href="/terms" className="text-purple-600 hover:underline">
-                Terms of Service
-              </Link>{" "}
-              and{" "}
-              <Link href="/privacy" className="text-purple-600 hover:underline">
-                Privacy Policy
-              </Link>
-            </p>
           </CardContent>
         </Card>
       </div>
